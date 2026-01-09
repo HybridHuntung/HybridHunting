@@ -1,6 +1,6 @@
-[00:00:01.905] Server  LOG     ✓ Ready in 1244ms
-[00:00:03.769] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:03.897] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[00:00:01.816] Server  LOG     ✓ Ready in 1187ms
+[00:00:14.446] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:14.572] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
 
 - A server/client branch `if (typeof window !== 'undefined')`.
 - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
@@ -34,3 +34,272 @@ It can also happen if the client has a browser extension installed which messes 
                         >
                   ...
 
+[00:13:50.757] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:13:50.869] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.js">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="en"
+-                         nighteye="disabled"
+                        >
+                  ...
+
+[00:16:00.522] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.524] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.527] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.529] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.532] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.535] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.537] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.540] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.542] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.545] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.548] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.551] Server  ERROR   ⨯ ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:16:00.660] Browser ERROR   ./app/page.js:1:1
+Module not found: Can't resolve 'next/images'
+> 1 | import Image from 'next/images';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  2 | export default function Home() {
+  3 |   const categories = [
+  4 |     { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
+
+Import map: aliased to module 'next' with subpath '/images' inside of [project]/
+
+https://nextjs.org/docs/messages/module-not-found
+[00:17:26.501] Server  LOG     ✓ Compiled in 123ms
+[00:22:10.830] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/images/vape.png" "received" null
+[00:22:10.833] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/images/edible.png" "received" null
+[00:22:10.844] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/images/leaf.png" "received" null
+[00:22:10.845] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/images/concentrate.png" "received" null
+[00:23:11.709] Browser WARN    Image with src "/images/pen.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:26:14.669] Browser ERROR   Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Flower
+[00:26:14.669] Browser ERROR   Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Edibles
+[00:26:14.669] Browser ERROR   Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Vapes
+[00:26:14.669] Browser ERROR   Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Concentrates
+[00:26:20.811] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:26:20.811] Browser ERROR   Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Flower
+[00:26:20.811] Browser ERROR   Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Edibles
+[00:26:20.811] Browser ERROR   Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Vapes
+[00:26:20.811] Browser ERROR   Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. Concentrates
+[00:26:20.811] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.js">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="en"
+-                         nighteye="disabled"
+                        >
+                  ...
+
+[00:26:20.811] Browser WARN    Image with src "/images/pen.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[00:26:20.829] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/images/edible.png" "received" null
+[00:26:20.840] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/images/concentrate.png" "received" null
+[00:26:20.924] Browser WARN    Image with src "/images/pen.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:26:59.176] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/images/green real.png" "received" null

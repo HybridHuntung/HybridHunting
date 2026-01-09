@@ -1,10 +1,11 @@
+import Image from 'next/image';
 export default function Home() {
   const categories = [
-    { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🍁' },
-    { bg: 'bg-[#F8E5CB]', label: 'Edibles', emoji: '🍬' },
-    { bg: 'bg-[#E4AD85]', label: 'Vapes', emoji: '💨' },
-    { bg: 'bg-[#E2CDB7]', label: 'Concentrates', emoji: '💧' },
-  ];
+  { bg: 'bg-[#C9D8BE]', label: 'Flower', image: '/images/green real leaf.png' },
+  { bg: 'bg-[#F8E5CB]', label: 'Edibles', image: '/images/edible.png' },
+  { bg: 'bg-[#E4AD85]', label: 'Vapes', image: '/images/pen.png' },
+  { bg: 'bg-[#E2CDB7]', label: 'Concentrates', image: '/images/concentrate.png' },
+];
 
   return (
     <div className="min-h-screen bg-white">
@@ -21,15 +22,28 @@ export default function Home() {
       {/* --- 2. HERO SECTION with Warm Cream Background --- */}
       <section className="bg-[#FCF0E4] px-6 py-12">
         <div className="max-w-4xl mx-auto">
-          {/* The main green box */}
+          {/* The main green box WITH SEARCH BAR */}
           <div className="bg-[#C8D8C0] rounded-3xl p-10 mb-12 text-center">
             <h1 className="text-4xl font-bold text-[#2A2A2A] mb-4">
-              Hunt for the best dispensary deals
+              Hunt for the best dispensary deals in Las Vegas
             </h1>
-            <p className="text-xl text-[#2A2A2A] mb-8">Compare prices and save instantly.</p>
-            <button className="bg-[#EDBD8F] text-[#2A2A2A] font-bold px-10 py-4 rounded-2xl text-lg hover:opacity-90">
-              Find Deals
-            </button>
+            <p className="text-xl text-[#2A2A2A] mb-8">Compare prices, find bundles, and save instantly.</p>
+            
+            {/* SEARCH BAR */}
+            <div className="max-w-2xl mx-auto flex mb-8">
+              <input
+                type="text"
+                placeholder="Search for flower, edibles, brands..."
+                className="flex-grow px-6 py-4 rounded-l-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#EDBD8F]"
+              />
+              <button className="px-8 py-4 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-r-2xl hover:opacity-90">
+                Search Deals
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-700">
+              Try "Hybrid Flower" or "3.5g deals"
+            </p>
           </div>
 
           {/* The four vertical rectangles BELOW the green box - in a SINGLE COLUMN */}
@@ -40,7 +54,15 @@ export default function Home() {
                 className={`${item.bg} rounded-2xl p-8 flex items-center`}
               >
                 {/* Icon/Image placeholder on LEFT */}
-                <div className="text-5xl mr-8">{item.emoji}</div>
+<div className="h-24 w-24 bg-white/30 rounded-xl mr-8 flex items-center justify-center">
+  <Image 
+    src={item.image}  // Uses the image path from the array
+    alt={item.label}
+    width={80}
+    height={80}
+    className="rounded-xl"
+  />
+</div>
                 {/* Text on RIGHT */}
                 <div>
                   <h3 className="text-2xl font-bold text-[#2A2A2A]">{item.label}</h3>
@@ -52,6 +74,8 @@ export default function Home() {
         </div>
       </section>
 
+          
+  
       {/* --- 3. "ELEVATE & RELAX" Terracotta Section --- */}
       <section className="bg-[#EDBD8F] px-6 py-16">
         <div className="max-w-4xl mx-auto text-center">
