@@ -1,22 +1,3 @@
-node_modules
-# Dependency directories
-node_modules/
-
-# Next.js build output
-.next/
-out/
-
-# Local development files
-*.local
-
-# Environment variables
-.env*.local
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS files
-.DS_Store
-Thumbs.db 
+﻿node_modules
+.next
+.env.local

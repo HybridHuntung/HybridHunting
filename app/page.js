@@ -1,5 +1,12 @@
+'use client'
 import Image from 'next/image';
+import { useState } from 'react'
+import { useAuth } from '@/lib/auth-context'
+import AuthModal from '../components/AuthModal'
+import UserMenu from '../components/UserMenu'
 export default function Home() {
+  const { user } = useAuth()
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const categories = [
   { bg: 'bg-[#C9D8BE]', label: 'Flower', image: '/images/green real leaf.png' },
   { bg: 'bg-[#F8E5CB]', label: 'Edibles', image: '/images/edible.png' },
@@ -12,12 +19,32 @@ export default function Home() {
       {/* --- 1. NAVIGATION --- */}
       <nav className="flex items-center justify-between px-6 py-4">
         <div className="text-2xl font-bold text-[#2A2A2A]">HybridHunting</div>
-        <div className="flex space-x-6">
-          <a href="#" className="text-[#2A2A2A] hover:underline">Deals</a>
+        <div className="flex items-center gap-6">
+          <a href="/search" className="text-[#2A2A2A] hover:underline">Deals</a>
+          <a href="/favorites" className="text-[#2A2A2A] hover:underline">Favorites</a>
           <a href="#" className="text-[#2A2A2A] hover:underline">How It Works</a>
-          <a href="#" className="text-[#2A2A2A] hover:underline">About</a>
-        </div>
+  
+          {/* Auth Section */}
+          <div className="flex items-center gap-4">
+              {user ? (
+                <UserMenu />
+              ) : (
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="px-6 py-2 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90"
+                >
+                  Sign In
+                 </button>
+              )}
+            </div>
+          </div>
       </nav>
+
+{/* Auth Modal */}
+<AuthModal 
+  isOpen={isAuthModalOpen} 
+  onClose={() => setIsAuthModalOpen(false)} 
+/>
 
       {/* --- 2. HERO SECTION with Warm Cream Background --- */}
       <section className="bg-[#FCF0E4] px-6 py-12">
@@ -28,18 +55,22 @@ export default function Home() {
               Hunt for the best dispensary deals in Las Vegas
             </h1>
             <p className="text-xl text-[#2A2A2A] mb-8">Compare prices, find bundles, and save instantly.</p>
-            
+
             {/* SEARCH BAR */}
-            <div className="max-w-2xl mx-auto flex mb-8">
-              <input
-                type="text"
-                placeholder="Search for flower, edibles, brands..."
-                className="flex-grow px-6 py-4 rounded-l-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#EDBD8F]"
-              />
-              <button className="px-8 py-4 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-r-2xl hover:opacity-90">
-                Search Deals
-              </button>
-            </div>
+            <form action="/search" method="GET" className="max-w-2xl mx-auto flex mb-8">
+            <input
+              type="text"
+              name="q"
+              placeholder="Search for flower, edibles, brands..."
+              className="flex-grow px-6 py-4 rounded-l-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#EDBD8F]"
+            />
+             <button
+              type="submit"
+             className="px-8 py-4 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-r-2xl hover:opacity-90 transition"
+            >
+            Search Deals
+          </button>
+        </form>
             
             <p className="text-sm text-gray-700">
               Try "Hybrid Flower" or "3.5g deals"
