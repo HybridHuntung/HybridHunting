@@ -1,5 +1,6 @@
-import { AuthProvider } from '@/lib/auth-context'
 import './globals.css'
+import { AuthProvider } from '@/lib/auth-context'
+import FloatingFavoritesButton from '@/components/FloatingFavoritesButton'
 
 export const metadata = {
   title: 'HybridHunting - Find Dispensary Deals',
@@ -12,6 +13,7 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           {children}
+          <FloatingFavoritesButton />
         </AuthProvider>
       </body>
     </html>

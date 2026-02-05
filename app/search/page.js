@@ -4,7 +4,58 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import FavoriteButton from '@/components/FavoriteButton'
 import Link from 'next/link'
+// In app/search/page.js, add this component
+function SearchNav() {
+  const { user } = useAuth()
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
 
+  return (
+    <nav className="px-6 py-4 border-b">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <Link href="/" className="text-2xl font-bold text-[#2A2A2A]">
+          HybridHunting
+        </Link>
+        
+        <div className="flex items-center gap-4 md:gap-6">
+          <Link href="/search" className="text-[#2A2A2A] hover:underline">Deals</Link>
+          
+          {/* Desktop: FavoritesBadge in nav */}
+          <div className="hidden md:block relative group">
+            <FavoritesBadge />
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              View your saved favorites
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+            </div>
+          </div>
+          
+          <Link href="#" className="text-[#2A2A2A] hover:underline">How It Works</Link>
+          
+          {/* Mobile: Simple text link */}
+          <div className="md:hidden">
+            <Link href="/favorites" className="text-[#2A2A2A] hover:underline flex items-center gap-1">
+              <span>❤️</span>
+              <span>Favorites</span>
+            </Link>
+          </div>
+          
+          {/* Auth Section */}
+          <div className="flex items-center gap-4">
+            {user ? (
+              <UserMenu />
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="px-4 py-2 md:px-6 md:py-2 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90"
+              >
+                Sign In
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  )
+}
 export default function SearchPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)

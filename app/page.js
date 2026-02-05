@@ -14,6 +14,7 @@ export default function Home() {
   { bg: 'bg-[#E2CDB7]', label: 'Concentrates', image: '/images/concentrate.png' },
 ];
 
+
   return (
     <div className="min-h-screen bg-white">
       {/* --- 1. NAVIGATION --- */}
@@ -23,6 +24,7 @@ export default function Home() {
           <a href="/search" className="text-[#2A2A2A] hover:underline">Deals</a>
           <a href="/favorites" className="text-[#2A2A2A] hover:underline">Favorites</a>
           <a href="#" className="text-[#2A2A2A] hover:underline">How It Works</a>
+
   
           {/* Auth Section */}
           <div className="flex items-center gap-4">
@@ -40,11 +42,13 @@ export default function Home() {
           </div>
       </nav>
 
+
 {/* Auth Modal */}
 <AuthModal 
   isOpen={isAuthModalOpen} 
   onClose={() => setIsAuthModalOpen(false)} 
 />
+
 
       {/* --- 2. HERO SECTION with Warm Cream Background --- */}
       <section className="bg-[#FCF0E4] px-6 py-12">
@@ -55,6 +59,7 @@ export default function Home() {
               Hunt for the best dispensary deals in Las Vegas
             </h1>
             <p className="text-xl text-[#2A2A2A] mb-8">Compare prices, find bundles, and save instantly.</p>
+
 
             {/* SEARCH BAR */}
             <form action="/search" method="GET" className="max-w-2xl mx-auto flex mb-8">
@@ -76,6 +81,7 @@ export default function Home() {
               Try "Hybrid Flower" or "3.5g deals"
             </p>
           </div>
+
 
           {/* The four vertical rectangles BELOW the green box - in a SINGLE COLUMN */}
           <div className="space-y-6 max-w-2xl mx-auto">
@@ -105,6 +111,7 @@ export default function Home() {
         </div>
       </section>
 
+
           
   
       {/* --- 3. "ELEVATE & RELAX" Terracotta Section --- */}
@@ -122,6 +129,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+
 
       {/* --- 4. FOOTER with Light Peach Background --- */}
       <footer className="bg-[#F5D9C0] px-6 py-16 rounded-t-3xl">
@@ -144,3 +152,6 @@ export default function Home() {
     </div>
   );
 }
+
+
+

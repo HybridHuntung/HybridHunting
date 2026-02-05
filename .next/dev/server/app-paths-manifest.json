@@ -1,6 +1,5 @@
 {
-  "/admin/page": "app/admin/page.js",
-  "/auth/callback/route": "app/auth/callback/route.js",
+  "/favorites/page": "app/favorites/page.js",
   "/page": "app/page.js",
   "/search/page": "app/search/page.js"
 }

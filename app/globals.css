@@ -1,3 +1,31 @@
 ﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
+@keyframes pulse-gentle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s infinite;
+}
+
+/* Smooth transitions for FAB */
+.fab-enter {
+  transform: translateY(100px);
+  opacity: 0;
+}
+.fab-enter-active {
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 300ms, opacity 300ms;
+}
+.fab-exit {
+  transform: translateY(0);
+  opacity: 1;
+}
+.fab-exit-active {
+  transform: translateY(100px);
+  opacity: 0;
+  transition: transform 300ms, opacity 300ms;
+}
