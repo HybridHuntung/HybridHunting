@@ -1,6 +1,7 @@
-[00:00:00.824] Server  LOG     ✓ Ready in 554ms
-[00:00:04.102] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:04.255] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[00:00:00.593] Server  ERROR   SyntaxError: Unexpected non-whitespace character after JSON at position 210625 (line 12438 column 1)
+[00:00:00.770] Server  LOG     ✓ Ready in 508ms
+[00:00:01.189] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:01.358] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
 
 - A server/client branch `if (typeof window !== 'undefined')`.
 - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
@@ -37,7 +38,11 @@ It can also happen if the client has a browser extension installed which messes 
                         >
                   ...
 
-[00:00:04.255] Browser WARN    Image with src "/images/edible.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:04.255] Browser WARN    Image with src "/images/pen.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:04.255] Browser WARN    Image with src "/images/concentrate.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:00:26.011] Server  LOG     ✓ Compiled in 516ms
+[00:00:01.358] Browser WARN    Image with src "/images/edible.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:01.358] Browser WARN    Image with src "/images/pen.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:01.358] Browser WARN    Image with src "/images/concentrate.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:01:04.929] Server  LOG     ✓ Compiled in 507ms
+[00:01:05.487] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/edible.png" "received" null
+[00:01:05.487] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/green real leaf.png" "received" null
+[00:01:05.490] Server  ERROR   ⨯ "The requested resource isn't a valid image for" "/pen.png" "received" null
+[00:01:12.701] Server  LOG     ✓ Compiled in 22ms
