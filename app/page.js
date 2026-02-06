@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import AuthModal from '../components/AuthModal'
 import UserMenu from '../components/UserMenu'
+import FavoritesBadge from '@/components/FavoritesBadge';
 export default function Home() {
   const { user } = useAuth()
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)

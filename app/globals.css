@@ -1,6 +1,7 @@
 ﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @keyframes pulse-gentle {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
