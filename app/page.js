@@ -146,7 +146,7 @@ export default function Home() {
             Find Deals
           </button>
           <p className="mt-12 text-[#2A2A2A]">
-            © 2024 HybridHunting. For legal use in Nevada. Consume responsibly.
+            © 2026 HybridHunting. For legal use in Nevada. Consume responsibly.
           </p>
         </div>
       </footer>
