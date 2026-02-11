@@ -148,7 +148,7 @@ export default function SearchPage() {
         {/* Filters Sidebar */}
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-1/4">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border">
+            <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border">
               <h2 className="text-xl font-bold mb-6 text-[#2A2A2A]">Filters</h2>
               
               <div className="space-y-6">
@@ -205,23 +205,31 @@ export default function SearchPage() {
                   />
                 </div>
 
-                {/* Strain Type */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Strain Type</label>
-                  <div className="flex gap-2">
-                    {['', 'sativa', 'indica', 'hybrid'].map(type => (
-                      <button
-                        key={type}
-                        onClick={() => setFilters({...filters, strainType: type})}
-                        className={`px-4 py-2 rounded-lg ${filters.strainType === type 
-                          ? 'bg-[#C8D8C0] text-[#2A2A2A]' 
-                          : 'bg-gray-100 text-gray-700'}`}
-                      >
-                        {type || 'All'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                {/* Strain Type - Smooth responsive layout */}
+<div>
+  <label className="block text-sm font-medium mb-2">Strain Type</label>
+  <div className="flex flex-col sm:flex-row flex-wrap gap-2 transition-all duration-300">
+    {['', 'sativa', 'indica', 'hybrid'].map(type => (
+      <button
+        key={type}
+        onClick={() => setFilters({...filters, strainType: type})}
+        className={`
+          px-4 py-3 rounded-lg text-base
+          transition-all duration-300
+          w-full sm:w-auto sm:flex-1
+          text-center
+          transform hover:scale-[1.02]
+          ${filters.strainType === type 
+            ? 'bg-[#C8D8C0] text-[#2A2A2A] font-medium shadow-sm' 
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }
+        `}
+      >
+        {type ? type.charAt(0).toUpperCase() + type.slice(1) : 'All'}
+      </button>
+    ))}
+  </div>
+</div>
 
                 {/* Sort Options */}
                 <div>

@@ -30,3 +30,10 @@
   opacity: 0;
   transition: transform 300ms, opacity 300ms;
 }
+/* Fix button text alignment */
+button {
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
