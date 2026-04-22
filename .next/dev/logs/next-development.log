@@ -1,6 +1,47 @@
-[00:00:00.878] Server  LOG     ✓ Ready in 594ms
-[00:00:09.473] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:09.600] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[00:00:00.795] Server  LOG     ✓ Ready in 520ms
+[00:00:02.591] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:03.386] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/search" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.js">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html
+                          lang="en"
+-                         nighteye="disabled"
+                        >
+                  ...
+
+[00:00:03.386] Browser LOG     URL category detected: flower
+[00:00:03.386] Browser LOG     Setting filter to: flower
+[00:00:03.386] Browser LOG     URL category detected: flower
+[00:00:03.386] Browser LOG     Fetching products with filters: {"area":"","category":"flower","maxPrice":"","minPrice":"","minTHC":"","sortBy":"effective_price","strainType":""}
+[00:00:07.659] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:07.795] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
 
 - A server/client branch `if (typeof window !== 'undefined')`.
 - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
@@ -36,41 +77,27 @@ It can also happen if the client has a browser extension installed which messes 
                         >
                   ...
 
-[00:01:50.919] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:01:51.047] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <script>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         nighteye="disabled"
-                        >
-                  ...
-
-[00:08:12.243] Server  LOG     ✓ Compiled in 61ms
+[00:00:12.132] Browser LOG     URL category detected: vapes
+[00:00:12.132] Browser LOG     Setting filter to: vapes
+[00:00:12.132] Browser LOG     URL category detected: vapes
+[00:00:12.132] Browser LOG     Setting filter to: vapes
+[00:00:12.132] Browser LOG     URL category detected: vapes
+[00:00:12.132] Browser LOG     Fetching products with filters: {"area":"","category":"vapes","maxPrice":"","minPrice":"","minTHC":"","sortBy":"effective_price","strainType":""}
+[00:00:15.926] Browser LOG     URL category detected: concentrates
+[00:00:15.926] Browser LOG     Setting filter to: concentrates
+[00:00:15.926] Browser LOG     URL category detected: concentrates
+[00:00:15.926] Browser LOG     Setting filter to: concentrates
+[00:00:15.926] Browser LOG     URL category detected: concentrates
+[00:00:15.926] Browser LOG     Fetching products with filters: {"area":"","category":"concentrates","maxPrice":"","minPrice":"","minTHC":"","sortBy":"effective_price","strainType":""}
+[00:00:19.611] Browser LOG     URL category detected: flower
+[00:00:19.611] Browser LOG     Setting filter to: flower
+[00:00:19.611] Browser LOG     URL category detected: flower
+[00:00:19.611] Browser LOG     Setting filter to: flower
+[00:00:19.611] Browser LOG     URL category detected: flower
+[00:00:19.611] Browser LOG     Fetching products with filters: {"area":"","category":"flower","maxPrice":"","minPrice":"","minTHC":"","sortBy":"effective_price","strainType":""}
+[00:00:36.914] Browser LOG     URL category detected: edibles
+[00:00:36.914] Browser LOG     Setting filter to: edibles
+[00:00:36.914] Browser LOG     URL category detected: edibles
+[00:00:36.914] Browser LOG     Setting filter to: edibles
+[00:00:36.914] Browser LOG     URL category detected: edibles
+[00:00:36.914] Browser LOG     Fetching products with filters: {"area":"","category":"edibles","maxPrice":"","minPrice":"","minTHC":"","sortBy":"effective_price","strainType":""}

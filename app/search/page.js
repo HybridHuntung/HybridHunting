@@ -12,6 +12,7 @@ export default function SearchPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [filtersOpen, setFiltersOpen] = useState(false) // NEW: for mobile filter toggle
+    const [urlProcessed, setUrlProcessed] = useState(false)
   const [filters, setFilters] = useState({
     category: '',
     minPrice: '',
@@ -25,12 +26,16 @@ export default function SearchPage() {
    const searchParams = useSearchParams()
   
   // Read category from URL on page load
-  useEffect(() => {
+   useEffect(() => {
     const categoryFromUrl = searchParams.get('category')
-    if (categoryFromUrl && !filters.category) {
+    console.log('URL category detected:', categoryFromUrl)
+    if (categoryFromUrl && !urlProcessed) {
+      console.log('Setting filter to:', categoryFromUrl)
       setFilters(prev => ({ ...prev, category: categoryFromUrl }))
+      setUrlProcessed(true)
     }
-  }, [searchParams])
+  }, [searchParams, urlProcessed])
+
 
   // Get location from localStorage
   const [userLocation, setUserLocation] = useState(null)
@@ -214,8 +219,11 @@ export default function SearchPage() {
 
   // Load products on page load and filter changes
   useEffect(() => {
-    fetchProducts()
-  }, [filters])
+    if (urlProcessed || !searchParams.get('category')) {
+      console.log('Fetching products with filters:', filters)
+      fetchProducts()
+    }
+  }, [filters, urlProcessed])
 
   return (
     <div className="min-h-screen bg-gray-50 p-3 md:p-8">
