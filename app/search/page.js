@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -226,7 +227,8 @@ export default function SearchPage() {
   }, [filters, urlProcessed])
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3 md:p-8">
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 p-3 md:p-8 flex items-center justify-center">Loading...</div>}>
+      <div className="min-h-screen bg-gray-50 p-3 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 md:mb-8">
@@ -503,5 +505,6 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
+    </Suspense>
   )
 }
