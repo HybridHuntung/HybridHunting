@@ -1,6 +1,6 @@
-[00:00:00.804] Server  LOG     ✓ Ready in 521ms
-[00:00:04.895] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:05.011] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[00:00:00.878] Server  LOG     ✓ Ready in 594ms
+[00:00:09.473] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:09.600] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
 
 - A server/client branch `if (typeof window !== 'undefined')`.
 - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
@@ -18,7 +18,7 @@ It can also happen if the client has a browser extension installed which messes 
         <ReplaySsrOnlyErrors>
         <DevRootHTTPAccessFallbackBoundary>
           <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/search" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
               <RedirectBoundary>
                 <RedirectErrorBoundary router={{...}}>
                   <Head>
@@ -36,8 +36,8 @@ It can also happen if the client has a browser extension installed which messes 
                         >
                   ...
 
-[00:17:46.030] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:17:46.209] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[00:01:50.919] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:51.047] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
 
 - A server/client branch `if (typeof window !== 'undefined')`.
 - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
@@ -55,7 +55,7 @@ It can also happen if the client has a browser extension installed which messes 
         <ReplaySsrOnlyErrors>
         <DevRootHTTPAccessFallbackBoundary>
           <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/search" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+            <HTTPAccessFallbackErrorBoundary pathname="/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
               <RedirectBoundary>
                 <RedirectErrorBoundary router={{...}}>
                   <Head>
@@ -73,95 +73,4 @@ It can also happen if the client has a browser extension installed which messes 
                         >
                   ...
 
-[00:18:24.681] Browser LOG     🔍 Loading favorites for user: d3e77e61-8f09-4e20-b197-f0bfde2fa6c1
-[00:18:24.681] Browser LOG     🔍 Loading favorites for user: d3e77e61-8f09-4e20-b197-f0bfde2fa6c1
-[00:18:24.834] Browser LOG     📦 Raw getFavorites result: []
-[00:18:24.834] Browser LOG     ✅ Extracted favorites: []
-[00:18:24.950] Browser LOG     📦 Raw getFavorites result: []
-[00:18:24.950] Browser LOG     ✅ Extracted favorites: []
-[00:45:59.081] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:45:59.196] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/search" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <script>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         nighteye="disabled"
-                        >
-                  ...
-
-[00:46:08.596] Browser LOG     🔍 Loading favorites for user: d3e77e61-8f09-4e20-b197-f0bfde2fa6c1
-[00:46:08.597] Browser LOG     🔍 Loading favorites for user: d3e77e61-8f09-4e20-b197-f0bfde2fa6c1
-[00:46:08.964] Browser LOG     📦 Raw getFavorites result: [{"brand":null,"category":"flower","created_at":"2026-01-09T04:13:21.414428+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":1.2,"name":"The Grove"},"dispensary_id":1,"id":5,"name":"Sour Diesle","price":45.99,"strain_type":"hybrid","thc_percentage":55.89}]
-[00:46:08.964] Browser LOG     ✅ Extracted favorites: [{"brand":null,"category":"flower","created_at":"2026-01-09T04:13:21.414428+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":1.2,"name":"The Grove"},"dispensary_id":1,"id":5,"name":"Sour Diesle","price":45.99,"strain_type":"hybrid","thc_percentage":55.89}]
-[00:46:09.065] Browser LOG     📦 Raw getFavorites result: [{"brand":null,"category":"flower","created_at":"2026-01-09T04:13:21.414428+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":1.2,"name":"The Grove"},"dispensary_id":1,"id":5,"name":"Sour Diesle","price":45.99,"strain_type":"hybrid","thc_percentage":55.89}]
-[00:46:09.065] Browser LOG     ✅ Extracted favorites: [{"brand":null,"category":"flower","created_at":"2026-01-09T04:13:21.414428+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":1.2,"name":"The Grove"},"dispensary_id":1,"id":5,"name":"Sour Diesle","price":45.99,"strain_type":"hybrid","thc_percentage":55.89}]
-[00:46:14.799] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:46:14.916] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/search" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="layout.js">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <script>
-                      <script>
-                      <RootLayout>
-                        <html
-                          lang="en"
--                         nighteye="disabled"
-                        >
-                  ...
-
-[00:46:20.444] Browser LOG     🔍 Loading favorites for user: d3e77e61-8f09-4e20-b197-f0bfde2fa6c1
-[00:46:20.444] Browser LOG     🔍 Loading favorites for user: d3e77e61-8f09-4e20-b197-f0bfde2fa6c1
-[00:46:20.725] Browser LOG     📦 Raw getFavorites result: [{"brand":null,"category":"flower","created_at":"2026-01-09T04:13:21.414428+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":1.2,"name":"The Grove"},"dispensary_id":1,"id":5,"name":"Sour Diesle","price":45.99,"strain_type":"hybrid","thc_percentage":55.89},{"brand":null,"category":"pre-roll","created_at":"2026-01-11T01:38:28.008147+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":0.8,"name":"Curaleaf"},"dispensary_id":3,"id":7,"name":"Arabian Hutz","price":12,"strain_type":"hybrid","thc_percentage":23.67},{"brand":null,"category":"pre-roll","created_at":"2026-01-11T01:41:22.106929+00:00","deal_quantity":4,"deal_total_price":50,"deal_type":"bundle","dispensaries":{"distance_miles":2.5,"name":"Planet 13\t"},"dispensary_id":2,"id":9,"name":"Cheey Gelly ","price":15,"strain_type":"hybrid","thc_percentage":43.99}]
-[00:46:20.725] Browser LOG     ✅ Extracted favorites: [{"brand":null,"category":"flower","created_at":"2026-01-09T04:13:21.414428+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":1.2,"name":"The Grove"},"dispensary_id":1,"id":5,"name":"Sour Diesle","price":45.99,"strain_type":"hybrid","thc_percentage":55.89},{"brand":null,"category":"pre-roll","created_at":"2026-01-11T01:38:28.008147+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":0.8,"name":"Curaleaf"},"dispensary_id":3,"id":7,"name":"Arabian Hutz","price":12,"strain_type":"hybrid","thc_percentage":23.67},{"brand":null,"category":"pre-roll","created_at":"2026-01-11T01:41:22.106929+00:00","deal_quantity":4,"deal_total_price":50,"deal_type":"bundle","dispensaries":{"distance_miles":2.5,"name":"Planet 13\t"},"dispensary_id":2,"id":9,"name":"Cheey Gelly ","price":15,"strain_type":"hybrid","thc_percentage":43.99}]
-[00:46:20.847] Browser LOG     📦 Raw getFavorites result: [{"brand":null,"category":"flower","created_at":"2026-01-09T04:13:21.414428+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":1.2,"name":"The Grove"},"dispensary_id":1,"id":5,"name":"Sour Diesle","price":45.99,"strain_type":"hybrid","thc_percentage":55.89},{"brand":null,"category":"pre-roll","created_at":"2026-01-11T01:38:28.008147+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":0.8,"name":"Curaleaf"},"dispensary_id":3,"id":7,"name":"Arabian Hutz","price":12,"strain_type":"hybrid","thc_percentage":23.67},{"brand":null,"category":"pre-roll","created_at":"2026-01-11T01:41:22.106929+00:00","deal_quantity":4,"deal_total_price":50,"deal_type":"bundle","dispensaries":{"distance_miles":2.5,"name":"Planet 13\t"},"dispensary_id":2,"id":9,"name":"Cheey Gelly ","price":15,"strain_type":"hybrid","thc_percentage":43.99}]
-[00:46:20.847] Browser LOG     ✅ Extracted favorites: [{"brand":null,"category":"flower","created_at":"2026-01-09T04:13:21.414428+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":1.2,"name":"The Grove"},"dispensary_id":1,"id":5,"name":"Sour Diesle","price":45.99,"strain_type":"hybrid","thc_percentage":55.89},{"brand":null,"category":"pre-roll","created_at":"2026-01-11T01:38:28.008147+00:00","deal_quantity":1,"deal_total_price":null,"deal_type":"single","dispensaries":{"distance_miles":0.8,"name":"Curaleaf"},"dispensary_id":3,"id":7,"name":"Arabian Hutz","price":12,"strain_type":"hybrid","thc_percentage":23.67},{"brand":null,"category":"pre-roll","created_at":"2026-01-11T01:41:22.106929+00:00","deal_quantity":4,"deal_total_price":50,"deal_type":"bundle","dispensaries":{"distance_miles":2.5,"name":"Planet 13\t"},"dispensary_id":2,"id":9,"name":"Cheey Gelly ","price":15,"strain_type":"hybrid","thc_percentage":43.99}]
+[00:08:12.243] Server  LOG     ✓ Compiled in 61ms

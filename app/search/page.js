@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import FavoriteButton from '@/components/FavoriteButton'
 import Link from 'next/link'
 import { MapPin } from 'lucide-react'
+
 
 export default function SearchPage() {
   const [products, setProducts] = useState([])
@@ -19,6 +21,16 @@ export default function SearchPage() {
     sortBy: 'effective_price',
     area: ''
   })
+
+   const searchParams = useSearchParams()
+  
+  // Read category from URL on page load
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category')
+    if (categoryFromUrl && !filters.category) {
+      setFilters(prev => ({ ...prev, category: categoryFromUrl }))
+    }
+  }, [searchParams])
 
   // Get location from localStorage
   const [userLocation, setUserLocation] = useState(null)
