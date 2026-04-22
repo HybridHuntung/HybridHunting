@@ -1,5 +1,6 @@
 import './globals.css'
 import { AuthProvider } from '@/lib/auth-context'
+import { LocationProvider } from '@/lib/location-context' // ADD THIS
 import FloatingFavoritesButton from '@/components/FloatingFavoritesButton'
 
 export const metadata = {
@@ -12,8 +13,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
-          {children}
-          <FloatingFavoritesButton />
+          <LocationProvider> {/* WRAP WITH LOCATION PROVIDER */}
+            {children}
+            <FloatingFavoritesButton />
+          </LocationProvider>
         </AuthProvider>
       </body>
     </html>

@@ -5,7 +5,9 @@ import { useAuth } from '@/lib/auth-context'
 import AuthModal from '../components/AuthModal'
 import UserMenu from '../components/UserMenu'
 import FavoritesBadge from '@/components/FavoritesBadge';
+import LocationDetector from '@/components/LocationDetector';
 import Link from 'next/link';
+
 
 export default function Home() {
   const { user } = useAuth()
@@ -78,7 +80,12 @@ export default function Home() {
             <p className="text-sm text-gray-700">
               Try "Hybrid Flower" or "3.5g deals"
             </p>
+
+            <div className="max-w-2xl mx-auto mt-8">
+            <LocationDetector />
           </div>
+         </div>
+
 
           {/* The four vertical rectangles BELOW the green box - FIXED LAYOUT */}
           <div className="w-full">

@@ -20,55 +20,81 @@ export default function FavoritesPage() {
   }, [user])
 
   async function loadFavorites() {
-    setLoading(true)
-    const favs = await getFavorites()
-    setFavorites(favs)
-    setSelectedItems(new Set()) // Clear selections when favorites reload
-    setLoading(false)
-  }
-
-const shareFavorites = async () => {
-  if (!user) {
-    alert('Please sign in to share favorites')
-    return
-  }
-
-   const favoritesToShare = favorites.filter(f => selectedItems.has(f.id))
-
-  if (favoritesToShare.length === 0) {
-    alert('No favorites to share')
-    return
-  }
-
-  // Create share data
-  const favoriteIds = favoritesToShare.map(f => f.id).join(',')
-  const shareData = {
-    title: 'My HybridHunting Favorites',
-    text: `Check out these ${favoritesToShare.length} cannabis deals I found!`,
-    url: `${window.location.origin}/shared?ids=${favoriteIds}&user=${user.id.slice(0, 8)}`
-  }
-
-  // Try Web Share API (mobile/Chrome)
-  if (navigator.share) {
-    try {
-      await navigator.share(shareData)
-      return
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.log('Web Share failed, falling back to clipboard')
+  setLoading(true)
+  console.log('🔍 Loading favorites for user:', user?.id)
+  
+  const result = await getFavorites()
+  console.log('📦 Raw getFavorites result:', result)
+  
+  // Try different ways to extract data
+  let favs = []
+  if (Array.isArray(result)) {
+    favs = result
+  } else if (result?.data && Array.isArray(result.data)) {
+    favs = result.data
+  } else if (result?.products && Array.isArray(result.products)) {
+    favs = result.products
+  } else if (result?.favorites && Array.isArray(result.favorites)) {
+    favs = result.favorites
+  } else if (typeof result === 'object') {
+    // Try to find any array property
+    for (const key in result) {
+      if (Array.isArray(result[key])) {
+        favs = result[key]
+        console.log(`Found array in property: ${key}`)
+        break
       }
     }
   }
-
-  // Fallback: Copy link to clipboard
-  try {
-    await navigator.clipboard.writeText(shareData.url)
-    alert('Share link copied to clipboard! Send it to friends.')
-  } catch (err) {
-    // Final fallback: Show URL
-    prompt('Copy this link to share:', shareData.url)
-  }
+  
+  console.log('✅ Extracted favorites:', favs)
+  setFavorites(favs)
+  setSelectedItems(new Set())
+  setLoading(false)
 }
+
+  const shareFavorites = async () => {
+    if (!user) {
+      alert('Please sign in to share favorites')
+      return
+    }
+
+    const favoritesToShare = favorites.filter(f => selectedItems.has(f.id))
+
+    if (favoritesToShare.length === 0) {
+      alert('No favorites to share')
+      return
+    }
+
+    // Create share data
+    const favoriteIds = favoritesToShare.map(f => f.id).join(',')
+    const shareData = {
+      title: 'My HybridHunting Favorites',
+      text: `Check out these ${favoritesToShare.length} cannabis deals I found!`,
+      url: `${window.location.origin}/shared?ids=${favoriteIds}&user=${user.id.slice(0, 8)}`
+    }
+
+    // Try Web Share API (mobile/Chrome)
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+        return
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.log('Web Share failed, falling back to clipboard')
+        }
+      }
+    }
+
+    // Fallback: Copy link to clipboard
+    try {
+      await navigator.clipboard.writeText(shareData.url)
+      alert('Share link copied to clipboard! Send it to friends.')
+    } catch (err) {
+      // Final fallback: Show URL
+      prompt('Copy this link to share:', shareData.url)
+    }
+  }
 
   // Toggle selection of a favorite
   const toggleSelection = (productId) => {
@@ -118,48 +144,6 @@ const shareFavorites = async () => {
     }
   }
 
- 
-  // Export favorites as text
-  const exportFavorites = () => {
-    const selectedFavorites = favorites.filter(f => selectedItems.has(f.id))
-    const favoritesToExport = selectedItems.size > 0 ? selectedFavorites : favorites
-    
-    if (favoritesToExport.length === 0) {
-      alert('No favorites to export')
-      return
-    }
-    
-    let exportText = `HybridHunting Favorites (${new Date().toLocaleDateString()})\n`
-    exportText += '='.repeat(40) + '\n\n'
-    
-    favoritesToExport.forEach((fav, index) => {
-      exportText += `${index + 1}. ${fav.name}\n`
-      exportText += `   Dispensary: ${fav.dispensaries?.name || 'Unknown'}\n`
-      exportText += `   Price: $${fav.price}\n`
-      exportText += `   THC: ${fav.thc_percentage}%\n`
-      exportText += `   Category: ${fav.category}\n`
-      
-      if (fav.deal_type === 'bundle' && fav.deal_quantity > 1) {
-        exportText += `   Deal: ${fav.deal_quantity} for $${fav.deal_total_price}\n`
-      }
-      
-      exportText += '\n'
-    })
-    
-    // Create and download file
-    const blob = new Blob([exportText], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `hybridhunting-favorites-${new Date().toISOString().split('T')[0]}.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    
-    alert(`Exported ${favoritesToExport.length} favorite(s)`)
-  }
-
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
@@ -194,45 +178,41 @@ const shareFavorites = async () => {
               <p className="text-gray-600 mt-2">
                 {selectedItems.size > 0 
                   ? `${selectedItems.size} item(s) selected`
-                  : 'Deals youve saved for later'}
+                  : 'Deals You Have Saved for Later'}
               </p>
             </div>
             
             {/* Bulk Action Buttons */}
-            {favorites.length > 0 && (
-  <div className="flex flex-wrap gap-3">
-    <button
-      onClick={toggleSelectAll}
-      disabled={loading || bulkActionLoading}
-      className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-    >
-      {selectedItems.size === favorites.length ? 'Deselect All' : 'Select All'}
-    </button>
-    
-    {selectedItems.size > 0 && (
-      <button
-        onClick={clearSelected}
-        disabled={bulkActionLoading}
-        className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 disabled:opacity-50"
-      >
-        {bulkActionLoading ? 'Removing...' : `Remove Selected (${selectedItems.size})`}
-      </button>
-    )}
-  </div>
-)}
-
- {/* Share Button */}
-    <button
-          onClick={shareFavorites}
-          disabled={bulkActionLoading}
-          className="px-4 py-2 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
-        >
-          <span>📤</span>
-          Share ({selectedItems.size})
-        </button>
-  </div>
-)
-
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={toggleSelectAll}
+                disabled={loading || bulkActionLoading}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                {selectedItems.size === favorites.length ? 'Deselect All' : 'Select All'}
+              </button>
+              
+              {selectedItems.size > 0 && (
+                <button
+                  onClick={clearSelected}
+                  disabled={bulkActionLoading}
+                  className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 disabled:opacity-50"
+                >
+                  {bulkActionLoading ? 'Removing...' : `Remove Selected (${selectedItems.size})`}
+                </button>
+              )}
+              
+              {selectedItems.size > 0 && (
+                <button
+                  onClick={shareFavorites}
+                  disabled={bulkActionLoading}
+                  className="px-4 py-2 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+                >
+                  <span>📤</span>
+                  Share ({selectedItems.size})
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -342,5 +322,6 @@ const shareFavorites = async () => {
           </>
         )}
       </div>
+    </div>
   )
 }

@@ -4,58 +4,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import FavoriteButton from '@/components/FavoriteButton'
 import Link from 'next/link'
-// In app/search/page.js, add this component
-function SearchNav() {
-  const { user } = useAuth()
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+import { MapPin } from 'lucide-react'
 
-  return (
-    <nav className="px-6 py-4 border-b">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="text-2xl font-bold text-[#2A2A2A]">
-          HybridHunting
-        </Link>
-        
-        <div className="flex items-center gap-4 md:gap-6">
-          <Link href="/search" className="text-[#2A2A2A] hover:underline">Deals</Link>
-          
-          {/* Desktop: FavoritesBadge in nav */}
-          <div className="hidden md:block relative group">
-            <FavoritesBadge />
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-              View your saved favorites
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
-            </div>
-          </div>
-          
-          <Link href="#" className="text-[#2A2A2A] hover:underline">How It Works</Link>
-          
-          {/* Mobile: Simple text link */}
-          <div className="md:hidden">
-            <Link href="/favorites" className="text-[#2A2A2A] hover:underline flex items-center gap-1">
-              <span>❤️</span>
-              <span>Favorites</span>
-            </Link>
-          </div>
-          
-          {/* Auth Section */}
-          <div className="flex items-center gap-4">
-            {user ? (
-              <UserMenu />
-            ) : (
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="px-4 py-2 md:px-6 md:py-2 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90"
-              >
-                Sign In
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </nav>
-  )
-}
 export default function SearchPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -65,34 +15,107 @@ export default function SearchPage() {
     maxPrice: '',
     minTHC: '',
     strainType: '',
-    sortBy: 'effective_price'
+    sortBy: 'effective_price',
+    area: ''
   })
 
-  // Load products on page load and filter changes
-  useEffect(() => {
-    fetchProducts()
-  }, [filters])
+  // Get location from localStorage
+  const [userLocation, setUserLocation] = useState(null)
 
-  async function fetchProducts() {
-    setLoading(true)
-    
-    let query = supabase
+  useEffect(() => {
+    const savedLocation = localStorage.getItem('hybridhunting-location')
+    if (savedLocation) {
+      try {
+        const location = JSON.parse(savedLocation)
+        setUserLocation(location)
+        if (location.isInVegas && location.selectedArea) {
+          setFilters(prev => ({ ...prev, area: location.selectedArea }))
+        }
+      } catch (e) {
+        console.error('Failed to parse location:', e)
+      }
+    }
+  }, [])
+
+  // Distance calculation function
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 3958.8 // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180
+    const dLon = (lon2 - lon1) * Math.PI / 180
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    return R * c
+  }
+
+    async function fetchProducts() {
+  setLoading(true)
+  
+  try {
+    // First get products
+    let productQuery = supabase
       .from('products')
-      .select('*, dispensaries(name, distance_miles)')
+      .select('*')
     
-    // Apply filters
-    if (filters.category) query = query.eq('category', filters.category)
-    if (filters.minPrice) query = query.gte('price', filters.minPrice)
-    if (filters.maxPrice) query = query.lte('price', filters.maxPrice)
-    if (filters.minTHC) query = query.gte('thc_percentage', filters.minTHC)
-    if (filters.strainType) query = query.eq('strain_type', filters.strainType)
+    // Apply filters to products
+    if (filters.category) productQuery = productQuery.eq('category', filters.category)
+    if (filters.strainType) productQuery = productQuery.eq('strain_type', filters.strainType)
+    if (filters.minPrice) productQuery = productQuery.gte('price', parseFloat(filters.minPrice))
+    if (filters.maxPrice) productQuery = productQuery.lte('price', parseFloat(filters.maxPrice))
+    if (filters.minTHC) productQuery = productQuery.gte('thc_percentage', parseFloat(filters.minTHC))
     
-    const { data, error } = await query
+    const { data: products, error } = await productQuery
     
-    if (!error && data) {
-      // Calculate effective price for deals
-      const productsWithEffectivePrice = data.map(product => {
-        let effectivePrice = product.price
+    if (error) throw error
+    
+    if (products && products.length > 0) {
+      // Get all dispensary IDs from products
+      const dispensaryIds = products
+        .map(p => p.dispensary_id)
+        .filter(id => id != null)
+      
+      // Fetch dispensaries separately
+      let dispensaryQuery = supabase
+        .from('dispensaries')
+        .select('*')
+      
+      if (dispensaryIds.length > 0) {
+        dispensaryQuery = dispensaryQuery.in('id', dispensaryIds)
+      }
+      
+      // Filter by area if needed
+      if (filters.area && filters.area !== 'All Areas') {
+        dispensaryQuery = dispensaryQuery.eq('area', filters.area)
+      }
+      
+      // Filter by state (NV)
+      dispensaryQuery = dispensaryQuery.eq('state', 'NV')
+      
+      const { data: dispensaries } = await dispensaryQuery
+      
+      // Create a map of dispensary ID to dispensary data
+      const dispensaryMap = {}
+      dispensaries?.forEach(d => {
+        dispensaryMap[d.id] = d
+      })
+      
+      // Filter products by dispensary area if needed
+      let filteredProducts = products
+      if (filters.area && filters.area !== 'All Areas') {
+        filteredProducts = products.filter(p => {
+          const dispensary = dispensaryMap[p.dispensary_id]
+          return dispensary?.area === filters.area
+        })
+      }
+      
+      // Transform products with dispensary data
+      const transformedProducts = filteredProducts.map(product => {
+        const dispensary = dispensaryMap[product.dispensary_id] || {}
+        
+        // Calculate effective price
+        let effectivePrice = product.price || 0
         let savings = 0
         
         if (product.deal_type === 'bundle' && product.deal_quantity > 1) {
@@ -106,28 +129,80 @@ export default function SearchPage() {
         return {
           ...product,
           effectivePrice: parseFloat(effectivePrice.toFixed(2)),
-          savings: parseFloat(savings.toFixed(1))
+          savings: parseFloat(savings.toFixed(1)),
+          distance: dispensary.distance_miles || null,
+          dispensaries: {
+            name: dispensary.name || 'Unknown Dispensary',
+            area: dispensary.area || 'Las Vegas',
+            distance_miles: dispensary.distance_miles || null
+          }
         }
       })
       
-      // Sort results
-      const sorted = productsWithEffectivePrice.sort((a, b) => {
-        if (filters.sortBy === 'effective_price') return a.effectivePrice - b.effectivePrice
-        if (filters.sortBy === 'thc') return b.thc_percentage - a.thc_percentage
-        if (filters.sortBy === 'distance') return a.dispensaries.distance_miles - b.dispensaries.distance_miles
+      // Sort products
+      const sortedProducts = transformedProducts.sort((a, b) => {
+        if (filters.sortBy === 'effective_price') {
+          return a.effectivePrice - b.effectivePrice
+        }
+        if (filters.sortBy === 'thc') {
+          return b.thc_percentage - a.thc_percentage
+        }
+        if (filters.sortBy === 'distance') {
+          const distA = a.distance || 999
+          const distB = b.distance || 999
+          return distA - distB
+        }
         return 0
       })
       
-      setProducts(sorted)
+      setProducts(sortedProducts)
+    } else {
+      setProducts([])
     }
     
+  } catch (err) {
+    console.error('💥 Error:', err)
+    setProducts([])
+  } finally {
     setLoading(false)
   }
+}
 
-  // Calculate stats
-  const averagePrice = products.length > 0 
-    ? (products.reduce((sum, p) => sum + p.effectivePrice, 0) / products.length).toFixed(2)
-    : 0
+
+  // Helper function to calculate effective price
+  function calculateEffectivePrice(product) {
+    if (!product) return product.price || 0
+    
+    if (product.deal_type === 'bundle' && product.deal_quantity > 1) {
+      return product.deal_total_price / product.deal_quantity
+    } else if (product.deal_type === 'discount' && product.deal_total_price) {
+      return product.deal_total_price
+    }
+    
+    return product.price || 0
+  }
+
+  // Helper function to calculate savings
+  function calculateSavings(product) {
+    if (!product || !product.price) return 0
+    
+    const effectivePrice = calculateEffectivePrice(product)
+    if (effectivePrice < product.price) {
+      return Math.round(((product.price - effectivePrice) / product.price) * 100 * 10) / 10
+    }
+    
+    return 0
+  }
+
+  // Helper for random distance (temporary)
+  function calculateRandomDistance() {
+    return Math.round((Math.random() * 15 + 0.5) * 10) / 10 // 0.5 to 15.5 miles
+  }
+
+  // Load products on page load and filter changes
+  useEffect(() => {
+    fetchProducts()
+  }, [filters])
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -137,12 +212,24 @@ export default function SearchPage() {
           <Link href="/" className="text-[#C8D8C0] hover:underline">
             ← Back to Home
           </Link>
+          
           <h1 className="text-3xl font-bold mt-4 text-[#2A2A2A]">
-            Search Results ({products.length} products)
+            {filters.area ? `${filters.area} Deals` : 'Las Vegas Deals'} 
+            <span className="text-lg font-normal text-gray-600 ml-2">
+              ({products.length} products)
+            </span>
           </h1>
-          <p className="text-gray-600 mt-2">
-            Average price: <span className="font-semibold">${averagePrice}</span> per unit
-          </p>
+          
+          {userLocation && userLocation.isInVegas && (
+            <div className="flex items-center gap-2 mt-2">
+              <MapPin className="w-4 h-4 text-gray-500" />
+              <p className="text-sm text-gray-600">
+                Showing dispensaries in {filters.area || 'all Vegas areas'}
+                {userLocation.detectedNeighborhood && !filters.area && 
+                  ` • Detected near ${userLocation.detectedNeighborhood}`}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Filters Sidebar */}
@@ -205,31 +292,63 @@ export default function SearchPage() {
                   />
                 </div>
 
-                {/* Strain Type - Smooth responsive layout */}
-<div>
-  <label className="block text-sm font-medium mb-2">Strain Type</label>
-  <div className="flex flex-col sm:flex-row flex-wrap gap-2 transition-all duration-300">
-    {['', 'sativa', 'indica', 'hybrid'].map(type => (
-      <button
-        key={type}
-        onClick={() => setFilters({...filters, strainType: type})}
-        className={`
-          px-4 py-3 rounded-lg text-base
-          transition-all duration-300
-          w-full sm:w-auto sm:flex-1
-          text-center
-          transform hover:scale-[1.02]
-          ${filters.strainType === type 
-            ? 'bg-[#C8D8C0] text-[#2A2A2A] font-medium shadow-sm' 
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }
-        `}
-      >
-        {type ? type.charAt(0).toUpperCase() + type.slice(1) : 'All'}
-      </button>
-    ))}
+                {/* Strain Type */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Strain Type</label>
+                  <div className="flex flex-col sm:flex-row flex-wrap gap-2 transition-all duration-300">
+                    {['', 'sativa', 'indica', 'hybrid'].map(type => (
+                      <button
+                        key={type}
+                        onClick={() => setFilters({...filters, strainType: type})}
+                        className={`
+                          px-4 py-3 rounded-lg text-base
+                          transition-all duration-300
+                          w-full sm:w-auto sm:flex-1
+                          text-center
+                          transform hover:scale-[1.02]
+                          ${filters.strainType === type 
+                            ? 'bg-[#C8D8C0] text-[#2A2A2A] font-medium shadow-sm' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }
+                        `}
+                      >
+                        {type ? type.charAt(0).toUpperCase() + type.slice(1) : 'All'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+
+                {/* Area Filter - ADD THIS SECTION */}
+{userLocation && userLocation.isInVegas && (
+  <div>
+    <label className="block text-sm font-medium mb-2">
+      <span className="flex items-center gap-1">
+        <MapPin className="w-4 h-4" />
+        Vegas Area
+      </span>
+    </label>
+    <select
+      value={filters.area || ''}
+      onChange={(e) => setFilters({...filters, area: e.target.value})}
+      className="w-full p-3 border rounded-lg" 
+    >
+      <option value="">All Vegas Areas</option>
+      <option value="The Strip">The Strip</option>
+      <option value="Summerlin">Summerlin</option>
+      <option value="Henderson">Henderson</option>
+      <option value="North Las Vegas">North Las Vegas</option>
+      <option value="Spring Valley">Spring Valley</option>
+      <option value="Enterprise">Enterprise</option>
+      <option value="Paradise">Paradise</option>
+      <option value="Centennial Hills">Centennial Hills</option>
+      <option value="Southwest">Southwest</option>
+    </select>
+    <p className="text-xs text-gray-500 mt-1">
+      Currently in: {userLocation.selectedArea || 'The Strip'}
+    </p>
   </div>
-</div>
+)}
 
                 {/* Sort Options */}
                 <div>
@@ -253,7 +372,8 @@ export default function SearchPage() {
                     maxPrice: '',
                     minTHC: '',
                     strainType: '',
-                    sortBy: 'effective_price'
+                    sortBy: 'effective_price',
+                    area: userLocation?.isInVegas ? userLocation.selectedArea || '' : ''
                   })}
                   className="w-full py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
@@ -267,11 +387,22 @@ export default function SearchPage() {
           <div className="md:w-3/4">
             {loading ? (
               <div className="text-center py-12">
-                <p className="text-lg">Loading deals...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C8D8C0] mx-auto"></div>
+                <p className="mt-2 text-lg">Loading deals...</p>
+                <p className="text-sm text-gray-500 mt-1">Checking Supabase database</p>
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-2xl">
-                <p className="text-xl text-gray-500">No products found. Try adjusting your filters.</p>
+                <p className="text-xl text-gray-500 mb-4">No products found in database</p>
+                <p className="text-gray-600">
+                  Try adjusting your filters or check your Supabase connection
+                </p>
+                <button
+                  onClick={() => fetchProducts()}
+                  className="mt-4 px-6 py-2 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90"
+                >
+                  Retry Loading
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -290,7 +421,7 @@ export default function SearchPage() {
                       <div className="space-y-3 mb-4">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Category</span>
-                          <span className="font-medium">{product.category}</span>
+                          <span className="font-medium capitalize">{product.category}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">THC</span>
@@ -304,9 +435,13 @@ export default function SearchPage() {
                           <span className="text-gray-600">Dispensary</span>
                           <span className="font-medium">{product.dispensaries?.name}</span>
                         </div>
+                        {/* Distance Display */}
                         <div className="flex justify-between">
                           <span className="text-gray-600">Distance</span>
-                          <span className="font-medium">{product.dispensaries?.distance_miles || '?'} mi</span>
+                          <span className="font-medium">
+                            {product.distance ? `${product.distance} mi` : 
+                            product.dispensaries?.distance_miles ? `${product.dispensaries.distance_miles} mi` : 'Distance N/A'}
+                          </span>
                         </div>
                       </div>
 
@@ -315,7 +450,7 @@ export default function SearchPage() {
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="text-2xl font-bold text-[#2A2A2A]">
-                              ${product.effectivePrice}
+                              ${product.effectivePrice ? product.effectivePrice.toFixed(2) : product.price?.toFixed(2) || '0.00'}
                             </div>
                             <div className="text-sm text-gray-500">
                               {product.deal_type === 'bundle' && product.deal_quantity > 1
@@ -324,17 +459,15 @@ export default function SearchPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            {/* Add favorite button */}
                             <FavoriteButton productId={product.id} />
-      
                             <button className="px-6 py-3 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90">
                               View Deal
                             </button>
-                         </div>
-                        </div>    
+                          </div>
                         </div>
                       </div>
                     </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -342,5 +475,4 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
-  )
-}
+  )}
