@@ -55,7 +55,7 @@ export default function Home() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/search" className="text-[#2A2A2A] hover:underline">Deals</Link>
+            <Link href="/search-wrapper" className="text-[#2A2A2A] hover:underline">Deals</Link>
             <Link href="/favorites" className="text-[#2A2A2A] hover:underline">Favorites</Link>
             <a href="#" className="text-[#2A2A2A] hover:underline">How It Works</a>
             <div className="flex items-center gap-4">
@@ -103,7 +103,7 @@ export default function Home() {
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pt-4 border-t flex flex-col gap-3">
-            <Link href="/search" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>Deals</Link>
+            <Link href="/search-wrapper" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>Deals</Link>
             <Link href="/favorites" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>Favorites</Link>
             <a href="#" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
           </div>
@@ -127,7 +127,7 @@ export default function Home() {
             <p className="text-base md:text-xl text-[#2A2A2A] mb-6 md:mb-8">Compare prices, find bundles, and save instantly.</p>
 
             {/* SEARCH BAR */}
-            <form action="/search" method="GET" className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-0 mb-6 md:mb-8">
+            <form action="/search-wrapper" method="GET" className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-0 mb-6 md:mb-8">
               <input
                 type="text"
                 name="q"
@@ -180,7 +180,7 @@ export default function Home() {
                           {item.description}
                         </p>
                         <Link
-                          href={`/search?category=${item.searchTerm}`}
+                          href={`/search-wrapper?category=${item.searchTerm}`}
                           className="inline-block px-4 py-2 bg-white/50 text-[#2A2A2A] font-bold rounded-lg hover:bg-white/70 transition text-sm"
                         >
                           Browse {item.label} Deals →
