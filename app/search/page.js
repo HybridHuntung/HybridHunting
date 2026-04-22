@@ -9,6 +9,7 @@ import { MapPin } from 'lucide-react'
 export default function SearchPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [filtersOpen, setFiltersOpen] = useState(false) // NEW: for mobile filter toggle
   const [filters, setFilters] = useState({
     category: '',
     minPrice: '',
@@ -205,25 +206,25 @@ export default function SearchPage() {
   }, [filters])
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-50 p-3 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <Link href="/" className="text-[#C8D8C0] hover:underline">
+        <div className="mb-6 md:mb-8">
+          <Link href="/" className="text-[#C8D8C0] hover:underline text-sm md:text-base">
             ← Back to Home
           </Link>
           
-          <h1 className="text-3xl font-bold mt-4 text-[#2A2A2A]">
+          <h1 className="text-2xl md:text-3xl font-bold mt-3 md:mt-4 text-[#2A2A2A]">
             {filters.area ? `${filters.area} Deals` : 'Las Vegas Deals'} 
-            <span className="text-lg font-normal text-gray-600 ml-2">
+            <span className="text-base md:text-lg font-normal text-gray-600 ml-2">
               ({products.length} products)
             </span>
           </h1>
           
           {userLocation && userLocation.isInVegas && (
             <div className="flex items-center gap-2 mt-2">
-              <MapPin className="w-4 h-4 text-gray-500" />
-              <p className="text-sm text-gray-600">
+              <MapPin className="w-3 h-3 md:w-4 md:h-4 text-gray-500" />
+              <p className="text-xs md:text-sm text-gray-600">
                 Showing dispensaries in {filters.area || 'all Vegas areas'}
                 {userLocation.detectedNeighborhood && !filters.area && 
                   ` • Detected near ${userLocation.detectedNeighborhood}`}
@@ -232,153 +233,161 @@ export default function SearchPage() {
           )}
         </div>
 
-        {/* Filters Sidebar */}
-        <div className="flex flex-col md:flex-row gap-8">
+        {/* Filters Sidebar - Mobile Collapsible */}
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           <div className="md:w-1/4">
-            <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border">
-              <h2 className="text-xl font-bold mb-6 text-[#2A2A2A]">Filters</h2>
+            <div className="bg-white p-4 rounded-2xl shadow-sm border">
+              {/* Mobile Filter Toggle Button */}
+              <button 
+                onClick={() => setFiltersOpen(!filtersOpen)}
+                className="md:hidden w-full flex justify-between items-center py-2 mb-2"
+              >
+                <h2 className="text-lg font-bold text-[#2A2A2A]">Filters</h2>
+                <span className="text-xl">{filtersOpen ? '▲' : '▼'}</span>
+              </button>
               
-              <div className="space-y-6">
-                {/* Category Filter */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Category</label>
-                  <select
-                    value={filters.category}
-                    onChange={(e) => setFilters({...filters, category: e.target.value})}
-                    className="w-full p-3 border rounded-lg"
-                  >
-                    <option value="">All Categories</option>
-                    <option value="flower">Flower</option>
-                    <option value="edibles">Edibles</option>
-                    <option value="vapes">Vapes</option>
-                    <option value="concentrates">Concentrates</option>
-                    <option value="pre-roll">Pre-Rolls</option>
-                  </select>
-                </div>
-
-                {/* Price Range */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Price Range</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={filters.minPrice}
-                      onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
-                      className="w-1/2 p-3 border rounded-lg"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      value={filters.maxPrice}
-                      onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
-                      className="w-1/2 p-3 border rounded-lg"
-                    />
-                  </div>
-                </div>
-
-                {/* THC Filter */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Min THC % {filters.minTHC && `: ${filters.minTHC}%`}
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="40"
-                    value={filters.minTHC || 0}
-                    onChange={(e) => setFilters({...filters, minTHC: e.target.value})}
-                    className="w-full"
-                  />
-                </div>
-
-                {/* Strain Type */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Strain Type</label>
-                  <div className="flex flex-col sm:flex-row flex-wrap gap-2 transition-all duration-300">
-                    {['', 'sativa', 'indica', 'hybrid'].map(type => (
-                      <button
-                        key={type}
-                        onClick={() => setFilters({...filters, strainType: type})}
-                        className={`
-                          px-4 py-3 rounded-lg text-base
-                          transition-all duration-300
-                          w-full sm:w-auto sm:flex-1
-                          text-center
-                          transform hover:scale-[1.02]
-                          ${filters.strainType === type 
-                            ? 'bg-[#C8D8C0] text-[#2A2A2A] font-medium shadow-sm' 
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }
-                        `}
-                      >
-                        {type ? type.charAt(0).toUpperCase() + type.slice(1) : 'All'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              {/* Filter Content - Hidden on mobile unless open */}
+              <div className={`${filtersOpen ? 'block' : 'hidden'} md:block`}>
+                <h2 className="hidden md:block text-xl font-bold mb-6 text-[#2A2A2A]">Filters</h2>
                 
+                <div className="space-y-5 md:space-y-6">
+                  {/* Category Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Category</label>
+                    <select
+                      value={filters.category}
+                      onChange={(e) => setFilters({...filters, category: e.target.value})}
+                      className="w-full p-2.5 md:p-3 border rounded-lg text-sm md:text-base"
+                    >
+                      <option value="">All Categories</option>
+                      <option value="flower">Flower</option>
+                      <option value="edibles">Edibles</option>
+                      <option value="vapes">Vapes</option>
+                      <option value="concentrates">Concentrates</option>
+                      <option value="pre-roll">Pre-Rolls</option>
+                    </select>
+                  </div>
 
-                {/* Area Filter - ADD THIS SECTION */}
-{userLocation && userLocation.isInVegas && (
-  <div>
-    <label className="block text-sm font-medium mb-2">
-      <span className="flex items-center gap-1">
-        <MapPin className="w-4 h-4" />
-        Vegas Area
-      </span>
-    </label>
-    <select
-      value={filters.area || ''}
-      onChange={(e) => setFilters({...filters, area: e.target.value})}
-      className="w-full p-3 border rounded-lg" 
-    >
-      <option value="">All Vegas Areas</option>
-      <option value="The Strip">The Strip</option>
-      <option value="Summerlin">Summerlin</option>
-      <option value="Henderson">Henderson</option>
-      <option value="North Las Vegas">North Las Vegas</option>
-      <option value="Spring Valley">Spring Valley</option>
-      <option value="Enterprise">Enterprise</option>
-      <option value="Paradise">Paradise</option>
-      <option value="Centennial Hills">Centennial Hills</option>
-      <option value="Southwest">Southwest</option>
-    </select>
-    <p className="text-xs text-gray-500 mt-1">
-      Currently in: {userLocation.selectedArea || 'The Strip'}
-    </p>
-  </div>
-)}
+                  {/* Price Range */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Price Range</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={filters.minPrice}
+                        onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
+                        className="w-1/2 p-2.5 md:p-3 border rounded-lg text-sm"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={filters.maxPrice}
+                        onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+                        className="w-1/2 p-2.5 md:p-3 border rounded-lg text-sm"
+                      />
+                    </div>
+                  </div>
 
-                {/* Sort Options */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Sort By</label>
-                  <select
-                    value={filters.sortBy}
-                    onChange={(e) => setFilters({...filters, sortBy: e.target.value})}
-                    className="w-full p-3 border rounded-lg"
+                  {/* THC Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Min THC % {filters.minTHC && `: ${filters.minTHC}%`}
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="40"
+                      value={filters.minTHC || 0}
+                      onChange={(e) => setFilters({...filters, minTHC: e.target.value})}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Strain Type */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Strain Type</label>
+                    <div className="flex flex-wrap gap-2">
+                      {['', 'sativa', 'indica', 'hybrid'].map(type => (
+                        <button
+                          key={type}
+                          onClick={() => setFilters({...filters, strainType: type})}
+                          className={`
+                            px-3 py-2 md:px-4 md:py-3 rounded-lg text-sm md:text-base
+                            flex-1 text-center
+                            ${filters.strainType === type 
+                              ? 'bg-[#C8D8C0] text-[#2A2A2A] font-medium shadow-sm' 
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }
+                          `}
+                        >
+                          {type ? type.charAt(0).toUpperCase() + type.slice(1) : 'All'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Area Filter */}
+                  {userLocation && userLocation.isInVegas && (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          Vegas Area
+                        </span>
+                      </label>
+                      <select
+                        value={filters.area || ''}
+                        onChange={(e) => setFilters({...filters, area: e.target.value})}
+                        className="w-full p-2.5 md:p-3 border rounded-lg text-sm md:text-base" 
+                      >
+                        <option value="">All Vegas Areas</option>
+                        <option value="The Strip">The Strip</option>
+                        <option value="Summerlin">Summerlin</option>
+                        <option value="Henderson">Henderson</option>
+                        <option value="North Las Vegas">North Las Vegas</option>
+                        <option value="Spring Valley">Spring Valley</option>
+                        <option value="Enterprise">Enterprise</option>
+                        <option value="Paradise">Paradise</option>
+                        <option value="Centennial Hills">Centennial Hills</option>
+                        <option value="Southwest">Southwest</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Currently in: {userLocation.selectedArea || 'The Strip'}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Sort Options */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Sort By</label>
+                    <select
+                      value={filters.sortBy}
+                      onChange={(e) => setFilters({...filters, sortBy: e.target.value})}
+                      className="w-full p-2.5 md:p-3 border rounded-lg text-sm md:text-base"
+                    >
+                      <option value="effective_price">Best Value (Price)</option>
+                      <option value="thc">Highest THC</option>
+                      <option value="distance">Nearest First</option>
+                    </select>
+                  </div>
+
+                  {/* Reset Filters */}
+                  <button
+                    onClick={() => setFilters({
+                      category: '',
+                      minPrice: '',
+                      maxPrice: '',
+                      minTHC: '',
+                      strainType: '',
+                      sortBy: 'effective_price',
+                      area: userLocation?.isInVegas ? userLocation.selectedArea || '' : ''
+                    })}
+                    className="w-full py-2.5 md:py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm md:text-base"
                   >
-                    <option value="effective_price">Best Value (Price)</option>
-                    <option value="thc">Highest THC</option>
-                    <option value="distance">Nearest First</option>
-                  </select>
+                    Reset Filters
+                  </button>
                 </div>
-
-                {/* Reset Filters */}
-                <button
-                  onClick={() => setFilters({
-                    category: '',
-                    minPrice: '',
-                    maxPrice: '',
-                    minTHC: '',
-                    strainType: '',
-                    sortBy: 'effective_price',
-                    area: userLocation?.isInVegas ? userLocation.selectedArea || '' : ''
-                  })}
-                  className="w-full py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Reset Filters
-                </button>
               </div>
             </div>
           </div>
@@ -405,38 +414,37 @@ export default function SearchPage() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {products.map(product => (
                   <div key={product.id} className="bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition">
-                    {/* Deal Badge */}
+                    {/* Deal Badge - Responsive */}
                     {product.savings > 0 && (
-                      <div className="bg-[#EDBD8F] text-[#2A2A2A] px-4 py-2 font-bold">
+                      <div className="bg-[#EDBD8F] text-[#2A2A2A] px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base font-bold text-center">
                         Save {product.savings}%
                       </div>
                     )}
                     
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-[#2A2A2A] mb-2">{product.name}</h3>
+                    <div className="p-4 md:p-6">
+                      <h3 className="text-lg md:text-xl font-bold text-[#2A2A2A] mb-2">{product.name}</h3>
                       
-                      <div className="space-y-3 mb-4">
-                        <div className="flex justify-between">
+                      <div className="space-y-2 md:space-y-3 mb-4">
+                        <div className="flex justify-between text-sm md:text-base">
                           <span className="text-gray-600">Category</span>
                           <span className="font-medium capitalize">{product.category}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-sm md:text-base">
                           <span className="text-gray-600">THC</span>
                           <span className="font-medium">{product.thc_percentage}%</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-sm md:text-base">
                           <span className="text-gray-600">Strain</span>
                           <span className="font-medium capitalize">{product.strain_type}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-sm md:text-base">
                           <span className="text-gray-600">Dispensary</span>
                           <span className="font-medium">{product.dispensaries?.name}</span>
                         </div>
-                        {/* Distance Display */}
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-sm md:text-base">
                           <span className="text-gray-600">Distance</span>
                           <span className="font-medium">
                             {product.distance ? `${product.distance} mi` : 
@@ -446,21 +454,21 @@ export default function SearchPage() {
                       </div>
 
                       {/* Price Display */}
-                      <div className="mt-6 pt-6 border-t">
-                        <div className="flex items-center justify-between">
+                      <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div>
-                            <div className="text-2xl font-bold text-[#2A2A2A]">
+                            <div className="text-xl md:text-2xl font-bold text-[#2A2A2A]">
                               ${product.effectivePrice ? product.effectivePrice.toFixed(2) : product.price?.toFixed(2) || '0.00'}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-xs md:text-sm text-gray-500">
                               {product.deal_type === 'bundle' && product.deal_quantity > 1
                                 ? `${product.deal_quantity} for $${product.deal_total_price}`
                                 : 'per unit'}
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 md:gap-3">
                             <FavoriteButton productId={product.id} />
-                            <button className="px-6 py-3 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90">
+                            <button className="px-4 py-2 md:px-6 md:py-3 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 text-sm md:text-base">
                               View Deal
                             </button>
                           </div>
@@ -475,4 +483,5 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
-  )}
+  )
+}

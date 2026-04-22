@@ -12,37 +12,79 @@ import Link from 'next/link';
 export default function Home() {
   const { user } = useAuth()
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
   const categories = [
-    { bg: 'bg-[#C9D8BE]', label: 'Flower', image: '/images/green real leaf.png' },
-    { bg: 'bg-[#F8E5CB]', label: 'Edibles', image: '/images/edible.png' },
-    { bg: 'bg-[#E4AD85]', label: 'Vapes', image: '/images/pen.png' },
-    { bg: 'bg-[#E2CDB7]', label: 'Concentrates', image: '/images/concentrate.png' },
+    { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🌿' },
+    { bg: 'bg-[#F8E5CB]', label: 'Edibles', emoji: '🍬' },
+    { bg: 'bg-[#E4AD85]', label: 'Vapes', emoji: '💨' },
+    { bg: 'bg-[#E2CDB7]', label: 'Concentrates', emoji: '⚗️' },
   ];
 
   return (
     <div className="min-h-screen bg-white">
-      {/* --- 1. NAVIGATION --- */}
-      <nav className="flex items-center justify-between px-6 py-4">
-        <div className="text-2xl font-bold text-[#2A2A2A]">HybridHunting</div>
-        <div className="flex items-center gap-6">
-          <Link href="/search" className="text-[#2A2A2A] hover:underline">Deals</Link>
-          <Link href="/favorites" className="text-[#2A2A2A] hover:underline">Favorites</Link>
-          <a href="#" className="text-[#2A2A2A] hover:underline">How It Works</a>
-
-          {/* Auth Section */}
-          <div className="flex items-center gap-4">
+      {/* --- 1. MOBILE-FRIENDLY NAVIGATION --- */}
+      <nav className="px-4 py-3 md:px-6 md:py-4">
+        <div className="flex items-center justify-between">
+          <div className="text-xl md:text-2xl font-bold text-[#2A2A2A]">HybridHunting</div>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/search" className="text-[#2A2A2A] hover:underline">Deals</Link>
+            <Link href="/favorites" className="text-[#2A2A2A] hover:underline">Favorites</Link>
+            <a href="#" className="text-[#2A2A2A] hover:underline">How It Works</a>
+            <div className="flex items-center gap-4">
+              {user ? (
+                <UserMenu />
+              ) : (
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="px-4 py-2 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 text-sm"
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
+        
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-4 pt-4 border-t flex flex-col gap-3">
+            <Link href="/search" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>Deals</Link>
+            <Link href="/favorites" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>Favorites</Link>
+            <a href="#" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
             {user ? (
-              <UserMenu />
+              <div className="pt-2">
+                <UserMenu />
+              </div>
             ) : (
               <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="px-6 py-2 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90"
+                onClick={() => {
+                  setIsAuthModalOpen(true)
+                  setMobileMenuOpen(false)
+                }}
+                className="px-4 py-2 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 text-sm w-full"
               >
                 Sign In
               </button>
             )}
           </div>
-        </div>
+        )}
       </nav>
 
       {/* Auth Modal */}
@@ -52,67 +94,61 @@ export default function Home() {
       />
 
       {/* --- 2. HERO SECTION with Warm Cream Background --- */}
-      <section className="bg-[#FCF0E4] px-6 py-12">
+      <section className="bg-[#FCF0E4] px-4 md:px-6 py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
           {/* The main green box WITH SEARCH BAR */}
-          <div className="bg-[#C8D8C0] rounded-3xl p-10 mb-12 text-center">
-            <h1 className="text-4xl font-bold text-[#2A2A2A] mb-4">
+          <div className="bg-[#C8D8C0] rounded-2xl md:rounded-3xl p-6 md:p-10 mb-8 md:mb-12 text-center">
+            <h1 className="text-2xl md:text-4xl font-bold text-[#2A2A2A] mb-3 md:mb-4">
               Hunt for the best dispensary deals in Las Vegas
             </h1>
-            <p className="text-xl text-[#2A2A2A] mb-8">Compare prices, find bundles, and save instantly.</p>
+            <p className="text-base md:text-xl text-[#2A2A2A] mb-6 md:mb-8">Compare prices, find bundles, and save instantly.</p>
 
-            {/* SEARCH BAR */}
-            <form action="/search" method="GET" className="max-w-2xl mx-auto flex mb-8">
+            {/* SEARCH BAR - Mobile Optimized */}
+            <form action="/search" method="GET" className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-0 mb-6 md:mb-8">
               <input
                 type="text"
                 name="q"
                 placeholder="Search for flower, edibles, brands..."
-                className="flex-grow px-6 py-4 rounded-l-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#EDBD8F]"
+                className="flex-grow px-4 md:px-6 py-3 md:py-4 rounded-lg sm:rounded-l-2xl sm:rounded-r-none border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#EDBD8F] text-sm md:text-base"
               />
               <button
                 type="submit"
-                className="px-8 py-4 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-r-2xl hover:opacity-90 transition"
+                className="px-6 md:px-8 py-3 md:py-4 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg sm:rounded-r-2xl sm:rounded-l-none hover:opacity-90 transition text-sm md:text-base"
               >
                 Search Deals
               </button>
             </form>
             
-            <p className="text-sm text-gray-700">
+            <p className="text-xs md:text-sm text-gray-700">
               Try "Hybrid Flower" or "3.5g deals"
             </p>
 
-            <div className="max-w-2xl mx-auto mt-8">
-            <LocationDetector />
+            <div className="max-w-2xl mx-auto mt-6 md:mt-8">
+              <LocationDetector />
+            </div>
           </div>
-         </div>
 
-
-          {/* The four vertical rectangles BELOW the green box - FIXED LAYOUT */}
+          {/* The four category cards - Mobile Optimized */}
           <div className="w-full">
-            <div className="max-w-6xl mx-auto px-4">
-              {/* Grid that becomes single column on mobile */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="max-w-6xl mx-auto px-2 md:px-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {categories.map((item) => (
                   <div
                     key={item.label}
-                    className={`${item.bg} rounded-2xl p-6 flex flex-col items-center text-center transition-all duration-300 hover:scale-[1.02] hover:shadow-lg`}
+                    className={`${item.bg} rounded-xl md:rounded-2xl p-4 md:p-6 flex flex-row sm:flex-col items-center text-center gap-4 sm:gap-0 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg`}
                   >
                     {/* Icon/Image placeholder */}
-                    <div className="h-20 w-20 bg-white/30 rounded-xl mb-4 flex items-center justify-center">
-                      {/* Use Image if available, otherwise emoji */}
-                      <div className="text-3xl">
-                        {item.label === 'Flower' && '🌿'}
-                        {item.label === 'Edibles' && '🍬'}
-                        {item.label === 'Vapes' && '💨'}
-                        {item.label === 'Concentrates' && '⚗️'}
+                    <div className="h-12 w-12 sm:h-20 sm:w-20 bg-white/30 rounded-xl flex items-center justify-center">
+                      <div className="text-2xl sm:text-3xl">
+                        {item.emoji}
                       </div>
                     </div>
-                    {/* Text - centered */}
-                    <div>
-                      <h3 className="text-xl font-bold text-[#2A2A2A]">
+                    {/* Text */}
+                    <div className="flex-1 sm:flex-none">
+                      <h3 className="text-base sm:text-xl font-bold text-[#2A2A2A]">
                         {item.label}
                       </h3>
-                      <p className="text-[#2A2A2A] mt-2 text-sm">
+                      <p className="hidden sm:block text-[#2A2A2A] mt-2 text-sm">
                         Browse the best deals on {item.label.toLowerCase()}.
                       </p>
                     </div>
@@ -121,39 +157,38 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div> {/* This closes the max-w-4xl container */}
+        </div>
       </section>
 
       {/* --- 3. "ELEVATE & RELAX" Terracotta Section --- */}
-      <section className="bg-[#EDBD8F] px-6 py-16">
+      <section className="bg-[#EDBD8F] px-4 md:px-6 py-12 md:py-16">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-[#2A2A2A] mb-6">Elevate & Relax</h2>
-          <p className="text-xl text-[#2A2A2A] mb-12">
+          <h2 className="text-2xl md:text-4xl font-bold text-[#2A2A2A] mb-4 md:mb-6">Elevate & Relax</h2>
+          <p className="text-base md:text-xl text-[#2A2A2A] mb-8 md:mb-12">
             Discover curated products to match your vibe.
           </p>
-          {/* Single product placeholder - one column */}
-          <div className="bg-white/40 rounded-3xl p-10 max-w-2xl mx-auto">
-            <div className="text-6xl mb-6">🌿</div>
-            <h3 className="text-3xl font-bold text-[#2A2A2A] mb-4">Featured Product</h3>
-            <p className="text-[#2A2A2A] text-lg">A premium selection to help you unwind.</p>
+          <div className="bg-white/40 rounded-2xl md:rounded-3xl p-6 md:p-10 max-w-2xl mx-auto">
+            <div className="text-4xl md:text-6xl mb-4 md:mb-6">🌿</div>
+            <h3 className="text-xl md:text-3xl font-bold text-[#2A2A2A] mb-2 md:mb-4">Featured Product</h3>
+            <p className="text-sm md:text-lg text-[#2A2A2A]">A premium selection to help you unwind.</p>
           </div>
         </div>
       </section>
 
       {/* --- 4. FOOTER with Light Peach Background --- */}
-      <footer className="bg-[#F5D9C0] px-6 py-16 rounded-t-3xl">
+      <footer className="bg-[#F5D9C0] px-4 md:px-6 py-12 md:py-16 rounded-t-2xl md:rounded-t-3xl">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-[#2A2A2A] mb-10">Ready to start hunting?</h2>
-          <div className="flex flex-col sm:flex-row justify-center gap-8 mb-12">
-            <a href="#" className="text-xl text-[#2A2A2A] hover:underline">Deals</a>
-            <a href="#" className="text-xl text-[#2A2A2A] hover:underline">How It Works</a>
-            <a href="#" className="text-xl text-[#2A2A2A] hover:underline">About</a>
-            <a href="#" className="text-xl text-[#2A2A2A] hover:underline">Contact</a>
+          <h2 className="text-2xl md:text-4xl font-bold text-[#2A2A2A] mb-6 md:mb-10">Ready to start hunting?</h2>
+          <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-8 md:mb-12">
+            <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">Deals</a>
+            <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">How It Works</a>
+            <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">About</a>
+            <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">Contact</a>
           </div>
-          <button className="bg-[#C8D8C0] text-[#2A2A2A] font-bold px-12 py-4 rounded-2xl text-xl hover:opacity-90">
+          <button className="bg-[#C8D8C0] text-[#2A2A2A] font-bold px-8 md:px-12 py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-xl hover:opacity-90">
             Find Deals
           </button>
-          <p className="mt-12 text-[#2A2A2A]">
+          <p className="mt-8 md:mt-12 text-sm md:text-base text-[#2A2A2A]">
             © 2026 HybridHunting. For legal use in Nevada. Consume responsibly.
           </p>
         </div>
