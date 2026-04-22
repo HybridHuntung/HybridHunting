@@ -12,14 +12,39 @@ import Link from 'next/link';
 export default function Home() {
   const { user } = useAuth()
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [expandedCategory, setExpandedCategory] = useState(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
   const categories = [
-    { bg: 'bg-[#C9D8BE]', label: 'Flower', emoji: '🌿' },
-    { bg: 'bg-[#F8E5CB]', label: 'Edibles', emoji: '🍬' },
-    { bg: 'bg-[#E4AD85]', label: 'Vapes', emoji: '💨' },
-    { bg: 'bg-[#E2CDB7]', label: 'Concentrates', emoji: '⚗️' },
-  ];
+  { 
+    bg: 'bg-[#C9D8BE]', 
+    label: 'Flower', 
+    emoji: '🌿',
+    description: 'Traditional cannabis buds. Available in sativa (energizing), indica (relaxing), and hybrid (balanced) strains.',
+    searchTerm: 'flower'
+  },
+  { 
+    bg: 'bg-[#F8E5CB]', 
+    label: 'Edibles', 
+    emoji: '🍬',
+    description: 'Food and drinks infused with cannabis. Effects take 30-90 minutes to onset and last longer than smoking.',
+    searchTerm: 'edibles'
+  },
+  { 
+    bg: 'bg-[#E4AD85]', 
+    label: 'Vapes', 
+    emoji: '💨',
+    description: 'Concentrated cannabis oil in cartridges. Fast-acting, discreet, and available in many strains.',
+    searchTerm: 'vapes'
+  },
+  { 
+    bg: 'bg-[#E2CDB7]', 
+    label: 'Concentrates', 
+    emoji: '⚗️',
+    description: 'Potent cannabis extracts like wax, shatter, and live resin. Higher THC content than flower.',
+    searchTerm: 'concentrates'
+  },
+];
 
   return (
     <div className="min-h-screen bg-white">
@@ -129,34 +154,42 @@ export default function Home() {
           </div>
 
           {/* The four category cards - Mobile Optimized */}
-          <div className="w-full">
-            <div className="max-w-6xl mx-auto px-2 md:px-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                {categories.map((item) => (
-                  <div
-                    key={item.label}
-                    className={`${item.bg} rounded-xl md:rounded-2xl p-4 md:p-6 flex flex-row sm:flex-col items-center text-center gap-4 sm:gap-0 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg`}
-                  >
-                    {/* Icon/Image placeholder */}
-                    <div className="h-12 w-12 sm:h-20 sm:w-20 bg-white/30 rounded-xl flex items-center justify-center">
-                      <div className="text-2xl sm:text-3xl">
-                        {item.emoji}
-                      </div>
-                    </div>
-                    {/* Text */}
-                    <div className="flex-1 sm:flex-none">
-                      <h3 className="text-base sm:text-xl font-bold text-[#2A2A2A]">
-                        {item.label}
-                      </h3>
-                      <p className="hidden sm:block text-[#2A2A2A] mt-2 text-sm">
-                        Browse the best deals on {item.label.toLowerCase()}.
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+  {categories.map((item) => (
+    <div key={item.label} className="flex flex-col">
+      {/* Card - click to expand/collapse */}
+      <button
+        onClick={() => setExpandedCategory(expandedCategory === item.label ? null : item.label)}
+        className={`${item.bg} rounded-xl md:rounded-2xl p-4 md:p-6 flex flex-row sm:flex-col items-center text-center gap-4 sm:gap-0 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer w-full`}
+      >
+        <div className="h-12 w-12 sm:h-20 sm:w-20 bg-white/30 rounded-xl flex items-center justify-center">
+          <div className="text-2xl sm:text-3xl">{item.emoji}</div>
+        </div>
+        <div className="flex-1 sm:flex-none">
+          <h3 className="text-base sm:text-xl font-bold text-[#2A2A2A]">{item.label}</h3>
+          <p className="hidden sm:block text-[#2A2A2A] mt-2 text-sm">
+            Click to learn more
+          </p>
+        </div>
+      </button>
+      
+      {/* Expanded info panel */}
+      {expandedCategory === item.label && (
+        <div className={`mt-2 p-4 ${item.bg} rounded-xl transition-all duration-300`}>
+          <p className="text-[#2A2A2A] text-sm md:text-base mb-4">
+            {item.description}
+          </p>
+          <Link
+            href={`/search?category=${item.searchTerm}`}
+            className="inline-block px-4 py-2 bg-white/50 text-[#2A2A2A] font-bold rounded-lg hover:bg-white/70 transition text-sm"
+          >
+            Browse {item.label} Deals →
+          </Link>
+        </div>
+      )}
+    </div>
+  ))}
+</div>
         </div>
       </section>
 
