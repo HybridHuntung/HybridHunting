@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+
 // Formatting helper functions
 const formatCategory = (cat) => {
   const words = cat.split('-').map(word => 
@@ -19,6 +20,9 @@ const formatDealType = (deal) => {
 export default function AdminPage() {
   const [dispensaries, setDispensaries] = useState([])
   const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [selectedSlug, setSelectedSlug] = useState('')
+  const [configDispensaries, setConfigDispensaries] = useState([])
   
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -32,10 +36,11 @@ export default function AdminPage() {
     dispensary_id: ''
   })
 
-  // Load existing data
+  // Load all data
   useEffect(() => {
     loadDispensaries()
     loadProducts()
+    loadConfigDispensaries()
   }, [])
 
   async function loadDispensaries() {
@@ -48,57 +53,138 @@ export default function AdminPage() {
     setProducts(data || [])
   }
 
-  //Validate date 
-function validateProduct() {
-  if (!newProduct.name.trim()) return 'Product name is required'
-  if (!newProduct.dispensary_id) return 'Please select a dispensary'
-  if (newProduct.price === '' || isNaN(parseFloat(newProduct.price))) 
-    return 'Valid price is required'
-  return null // No errors
-}
+  async function loadConfigDispensaries() {
+    try {
+      const res = await fetch('/api/dispensaries-config')
+      const data = await res.json()
+      setConfigDispensaries(data.dispensaries || [])
+    } catch (error) {
+      console.error('Failed to load config dispensaries:', error)
+    }
+  }
 
- async function handleAddProduct(e) {
-  e.preventDefault()
-  
-  // Prepare data - convert empty strings to null for numbers
-  const productData = {
-    ...newProduct,
-    // Convert empty strings to null for numeric fields
-    thc_percentage: newProduct.thc_percentage === '' ? null : parseFloat(newProduct.thc_percentage),
-    price: newProduct.price === '' ? null : parseFloat(newProduct.price),
-    deal_quantity: newProduct.deal_quantity === '' ? 1 : parseInt(newProduct.deal_quantity),
-    deal_total_price: newProduct.deal_total_price === '' ? null : parseFloat(newProduct.deal_total_price),
-    dispensary_id: parseInt(newProduct.dispensary_id)
+  async function handleAddProduct(e) {
+    e.preventDefault()
+    
+    const productData = {
+      ...newProduct,
+      thc_percentage: newProduct.thc_percentage === '' ? null : parseFloat(newProduct.thc_percentage),
+      price: newProduct.price === '' ? null : parseFloat(newProduct.price),
+      deal_quantity: newProduct.deal_quantity === '' ? 1 : parseInt(newProduct.deal_quantity),
+      deal_total_price: newProduct.deal_total_price === '' ? null : parseFloat(newProduct.deal_total_price),
+      dispensary_id: parseInt(newProduct.dispensary_id)
+    }
+    
+    const { error } = await supabase
+      .from('products')
+      .insert([productData])
+    
+    if (error) {
+      alert('Error: ' + error.message)
+    } else {
+      alert('Product added successfully!')
+      setNewProduct({
+        name: '',
+        category: 'flower',
+        strain_type: 'hybrid',
+        thc_percentage: '',
+        price: '',
+        deal_type: 'single',
+        deal_quantity: 1,
+        deal_total_price: '',
+        dispensary_id: ''
+      })
+      loadProducts()
+    }
   }
-  
-  const { error } = await supabase
-    .from('products')
-    .insert([productData])
-  
-  if (error) {
-    alert('Error: ' + error.message)
-    console.error('Full error:', error)
-  } else {
-    alert('Product added successfully!')
-    // Reset form
-    setNewProduct({
-      name: '',
-      category: 'flower',
-      strain_type: 'hybrid',
-      thc_percentage: '',
-      price: '',
-      deal_type: 'single',
-      deal_quantity: 1,
-      deal_total_price: '',
-      dispensary_id: ''
-    })
-    loadProducts() // Refresh the list
+
+  async function syncAllDispensaries() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/jardin')
+      const data = await res.json()
+      if (data.success) {
+        let message = `Synced ${data.results.length} dispensaries:\n`
+        data.results.forEach(r => {
+          if (r.error) {
+            message += `❌ ${r.name}: ${r.error}\n`
+          } else {
+            message += `✅ ${r.name}: +${r.newProductsAdded} new products (Total: ${r.totalProducts})\n`
+          }
+        })
+        alert(message)
+        loadProducts()
+      } else {
+        alert(`Error: ${data.error}`)
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`)
+    } finally {
+      setLoading(false)
+    }
   }
-}
+
+  async function syncSingleDispensary() {
+    if (!selectedSlug) return
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/jardin?slug=${selectedSlug}`)
+      const data = await res.json()
+      if (data.success && data.results[0]) {
+        const r = data.results[0]
+        if (r.error) {
+          alert(`❌ ${r.name}: ${r.error}`)
+        } else {
+          alert(`✅ ${r.name}: +${r.newProductsAdded} new products (Total: ${r.totalProducts})`)
+        }
+        loadProducts()
+      } else {
+        alert(`Error: ${data.error}`)
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-8">HybridHunting Admin</h1>
+      
+      {/* Sync Buttons */}
+      <div className="mb-6 flex gap-4 items-center flex-wrap">
+        <button
+          onClick={syncAllDispensaries}
+          disabled={loading}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+        >
+          {loading ? 'Syncing...' : 'Sync ALL Dispensaries'}
+        </button>
+        
+        <div className="flex gap-2">
+          <select
+            value={selectedSlug}
+            onChange={(e) => setSelectedSlug(e.target.value)}
+            className="px-4 py-2 border rounded"
+          >
+            <option value="">Sync specific dispensary...</option>
+            {configDispensaries.map(disp => (
+              <option key={disp.leaflySlug} value={disp.leaflySlug}>
+                {disp.name}
+              </option>
+            ))}
+          </select>
+          
+          <button
+            onClick={syncSingleDispensary}
+            disabled={loading || !selectedSlug}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            Sync Selected
+          </button>
+        </div>
+      </div>
       
       {/* Add Product Form */}
       <div className="mb-12 p-6 border rounded-lg bg-gray-50">
@@ -114,16 +200,21 @@ function validateProduct() {
           />
           
           <select
-                value={newProduct.category}
-                onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                className="p-3 border rounded"
-                        >
-                <option value="flower">Flower</option>
-                <option value="edibles">Edibles</option>
-                 <option value="vapes">Vapes</option>
-                 <option value="concentrates">Concentrates</option>
-                <option value="pre-roll">Pre-Roll</option>
-            </select>
+            value={newProduct.category}
+            onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+            className="p-3 border rounded"
+          >
+            <option value="flower">Flower</option>
+            <option value="edibles">Edibles</option>
+            <option value="vapes">Vapes</option>
+            <option value="carts">Carts</option>
+            <option value="concentrates">Concentrates</option>
+            <option value="pre_rolls">Pre-Rolls</option>
+            <option value="cbd">CBD</option>
+            <option value="accessories">Accessories</option>
+            <option value="topicals">Topicals</option>
+            <option value="other">Other</option>
+          </select>
           
           <input
             type="number"
@@ -144,15 +235,15 @@ function validateProduct() {
           />
           
           <select
-                value={newProduct.deal_type}
-                onChange={(e) => setNewProduct({...newProduct, deal_type: e.target.value})}
-                 className="p-3 border rounded"
-             >                   
-                <option value="single">Single Item</option>
-                <option value="bundle">Bundle Deal</option>
-                <option value="bogo">Buy One Get One (BOGO)</option>
-                <option value="discount">Percentage Discount</option>
-            </select>
+            value={newProduct.deal_type}
+            onChange={(e) => setNewProduct({...newProduct, deal_type: e.target.value})}
+            className="p-3 border rounded"
+          >                   
+            <option value="single">Single Item</option>
+            <option value="bundle">Bundle Deal</option>
+            <option value="bogo">Buy One Get One (BOGO)</option>
+            <option value="discount">Percentage Discount</option>
+          </select>
           
           {newProduct.deal_type === 'bundle' && (
             <>
@@ -219,9 +310,9 @@ function validateProduct() {
                   <td className="p-3 border">${product.price}</td>
                   <td className="p-3 border">
                     {product.deal_type === 'bundle' 
-                    ? `${product.deal_quantity} for $${product.deal_total_price}`
-                    : product.deal_type.charAt(0).toUpperCase() + product.deal_type.slice(1)}
-                        </td>
+                      ? `${product.deal_quantity} for $${product.deal_total_price}`
+                      : product.deal_type?.charAt(0).toUpperCase() + product.deal_type?.slice(1)}
+                  </td>
                   <td className="p-3 border">{product.dispensaries?.name}</td>
                 </tr>
               ))}

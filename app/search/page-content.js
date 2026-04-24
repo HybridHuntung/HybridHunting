@@ -12,12 +12,17 @@ export default function SearchContent() {
   const [loading, setLoading] = useState(true)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [urlProcessed, setUrlProcessed] = useState(false)
+  const [dispensariesList, setDispensariesList] = useState([])
+  const [brandsList, setBrandsList] = useState([])
   const [filters, setFilters] = useState({
-    category: '',
+    categories: [],
+    strainTypes: [],
+    dealTypes: [],
+    dispensaryId: '',
+    brand: '',
     minPrice: '',
     maxPrice: '',
     minTHC: '',
-    strainType: '',
     sortBy: 'effective_price',
     area: ''
   })
@@ -25,10 +30,33 @@ export default function SearchContent() {
   const searchParams = useSearchParams()
   const [userLocation, setUserLocation] = useState(null)
 
+  // Load dispensaries and brands for filters
+  useEffect(() => {
+    async function loadFilterOptions() {
+      // Load dispensaries
+      const { data: dispensaries } = await supabase
+        .from('dispensaries')
+        .select('id, name, area')
+        .eq('state', 'NV')
+        .order('name')
+      setDispensariesList(dispensaries || [])
+
+      // Load unique brands from products
+      const { data: brands } = await supabase
+        .from('products')
+        .select('brand')
+        .not('brand', 'is', null)
+        .not('brand', 'eq', '')
+      const uniqueBrands = [...new Map(brands?.map(b => [b.brand, b.brand])).values()]
+      setBrandsList(uniqueBrands.sort())
+    }
+    loadFilterOptions()
+  }, [])
+
   useEffect(() => {
     const categoryFromUrl = searchParams.get('category')
     if (categoryFromUrl && !urlProcessed) {
-      setFilters(prev => ({ ...prev, category: categoryFromUrl }))
+      setFilters(prev => ({ ...prev, categories: [categoryFromUrl] }))
       setUrlProcessed(true)
     }
   }, [searchParams, urlProcessed])
@@ -54,11 +82,21 @@ export default function SearchContent() {
     try {
       let productQuery = supabase.from('products').select('*')
       
-      if (filters.category) productQuery = productQuery.eq('category', filters.category)
-      if (filters.strainType) productQuery = productQuery.eq('strain_type', filters.strainType)
+      // Apply filters
+      if (filters.categories && filters.categories.length > 0) {
+        productQuery = productQuery.in('category', filters.categories)
+      }
+      if (filters.strainTypes && filters.strainTypes.length > 0) {
+        productQuery = productQuery.in('strain_type', filters.strainTypes)
+      }
+      if (filters.dealTypes && filters.dealTypes.length > 0) {
+        productQuery = productQuery.in('deal_type', filters.dealTypes)
+      }
+      if (filters.brand) productQuery = productQuery.eq('brand', filters.brand)
       if (filters.minPrice) productQuery = productQuery.gte('price', parseFloat(filters.minPrice))
       if (filters.maxPrice) productQuery = productQuery.lte('price', parseFloat(filters.maxPrice))
       if (filters.minTHC) productQuery = productQuery.gte('thc_percentage', parseFloat(filters.minTHC))
+      if (filters.dispensaryId) productQuery = productQuery.eq('dispensary_id', parseInt(filters.dispensaryId))
       
       const { data: products, error } = await productQuery
       
@@ -136,6 +174,16 @@ export default function SearchContent() {
     }
   }, [filters, urlProcessed])
 
+  // Helper function to handle checkbox changes for arrays
+  const handleArrayFilter = (arrayName, value, checked) => {
+    const currentArray = filters[arrayName] || []
+    if (checked) {
+      setFilters({...filters, [arrayName]: [...currentArray, value]})
+    } else {
+      setFilters({...filters, [arrayName]: currentArray.filter(item => item !== value)})
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-3 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -176,22 +224,116 @@ export default function SearchContent() {
                 <h2 className="hidden md:block text-xl font-bold mb-6 text-[#2A2A2A]">Filters</h2>
                 
                 <div className="space-y-5 md:space-y-6">
+                  {/* Category Filter - Multi-select */}
                   <div>
                     <label className="block text-sm font-medium mb-2">Category</label>
+                    <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-2">
+                      {[
+                        { value: 'flower', label: 'Flower' },
+                        { value: 'pre_rolls', label: 'Pre-Rolls' },
+                        { value: 'vapes', label: 'Vapes (Disposable)' },
+                        { value: 'carts', label: 'Carts (Cartridges)' },
+                        { value: 'concentrates', label: 'Concentrates' },
+                        { value: 'edibles', label: 'Edibles' },
+                        { value: 'cbd', label: 'CBD' },
+                        { value: 'accessories', label: 'Accessories' },
+                        { value: 'topicals', label: 'Topicals' },
+                        { value: 'other', label: 'Other' }
+                      ].map(cat => (
+                        <label key={cat.value} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            value={cat.value}
+                            checked={filters.categories?.includes(cat.value) || false}
+                            onChange={(e) => handleArrayFilter('categories', cat.value, e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-300"
+                          />
+                          <span className="text-sm">{cat.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Strain Type Filter - Multi-select */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Strain Type</label>
+                    <div className="space-y-2 border rounded-lg p-2">
+                      {[
+                        { value: 'sativa', label: 'Sativa' },
+                        { value: 'indica', label: 'Indica' },
+                        { value: 'hybrid', label: 'Hybrid' }
+                      ].map(strain => (
+                        <label key={strain.value} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            value={strain.value}
+                            checked={filters.strainTypes?.includes(strain.value) || false}
+                            onChange={(e) => handleArrayFilter('strainTypes', strain.value, e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-300"
+                          />
+                          <span className="text-sm">{strain.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Deal Type Filter - Multi-select */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Deal Type</label>
+                    <div className="space-y-2 border rounded-lg p-2">
+                      {[
+                        { value: 'single', label: 'Single Item' },
+                        { value: 'bundle', label: 'Bundle Deal' },
+                        { value: 'bogo', label: 'BOGO' },
+                        { value: 'discount', label: 'Percentage Discount' }
+                      ].map(deal => (
+                        <label key={deal.value} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            value={deal.value}
+                            checked={filters.dealTypes?.includes(deal.value) || false}
+                            onChange={(e) => handleArrayFilter('dealTypes', deal.value, e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-300"
+                          />
+                          <span className="text-sm">{deal.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Dispensary Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Dispensary</label>
                     <select
-                      value={filters.category}
-                      onChange={(e) => setFilters({...filters, category: e.target.value})}
+                      value={filters.dispensaryId}
+                      onChange={(e) => setFilters({...filters, dispensaryId: e.target.value})}
                       className="w-full p-2.5 md:p-3 border rounded-lg text-sm md:text-base"
                     >
-                      <option value="">All Categories</option>
-                      <option value="flower">Flower</option>
-                      <option value="edibles">Edibles</option>
-                      <option value="vapes">Vapes</option>
-                      <option value="concentrates">Concentrates</option>
-                      <option value="pre-roll">Pre-Rolls</option>
+                      <option value="">All Dispensaries</option>
+                      {dispensariesList.map(disp => (
+                        <option key={disp.id} value={disp.id}>{disp.name}</option>
+                      ))}
                     </select>
                   </div>
 
+                  {/* Brand Filter */}
+                  {brandsList.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Brand</label>
+                      <select
+                        value={filters.brand}
+                        onChange={(e) => setFilters({...filters, brand: e.target.value})}
+                        className="w-full p-2.5 md:p-3 border rounded-lg text-sm md:text-base"
+                      >
+                        <option value="">All Brands</option>
+                        {brandsList.map(brand => (
+                          <option key={brand} value={brand}>{brand}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Price Range */}
                   <div>
                     <label className="block text-sm font-medium mb-2">Price Range</label>
                     <div className="flex gap-2">
@@ -212,6 +354,7 @@ export default function SearchContent() {
                     </div>
                   </div>
 
+                  {/* Min THC */}
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Min THC % {filters.minTHC && `: ${filters.minTHC}%`}
@@ -225,22 +368,8 @@ export default function SearchContent() {
                       className="w-full"
                     />
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Strain Type</label>
-                    <div className="flex flex-wrap gap-2">
-                      {['', 'sativa', 'indica', 'hybrid'].map(type => (
-                        <button
-                          key={type}
-                          onClick={() => setFilters({...filters, strainType: type})}
-                          className={`px-3 py-2 md:px-4 md:py-3 rounded-lg text-sm md:text-base flex-1 text-center ${filters.strainType === type ? 'bg-[#C8D8C0] text-[#2A2A2A] font-medium shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                        >
-                          {type ? type.charAt(0).toUpperCase() + type.slice(1) : 'All'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                   
+                  {/* Vegas Area */}
                   {userLocation && userLocation.isInVegas && (
                     <div>
                       <label className="block text-sm font-medium mb-2">
@@ -268,6 +397,7 @@ export default function SearchContent() {
                     </div>
                   )}
 
+                  {/* Sort By */}
                   <div>
                     <label className="block text-sm font-medium mb-2">Sort By</label>
                     <select
@@ -281,13 +411,35 @@ export default function SearchContent() {
                     </select>
                   </div>
 
+                  {/* Selected Filters Summary */}
+                  {(filters.categories.length > 0 || filters.strainTypes.length > 0 || filters.dealTypes.length > 0 || filters.dispensaryId || filters.brand || filters.minPrice || filters.maxPrice || filters.minTHC) && (
+                    <div className="text-xs text-gray-500 border-t pt-3">
+                      <p className="font-medium mb-1">Active Filters:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {filters.categories.map(c => (
+                          <span key={c} className="bg-gray-100 px-2 py-0.5 rounded">{c.replace('_', ' ')}</span>
+                        ))}
+                        {filters.strainTypes.map(s => (
+                          <span key={s} className="bg-gray-100 px-2 py-0.5 rounded">{s}</span>
+                        ))}
+                        {filters.dealTypes.map(d => (
+                          <span key={d} className="bg-gray-100 px-2 py-0.5 rounded">{d}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reset Button */}
                   <button
                     onClick={() => setFilters({
-                      category: '',
+                      categories: [],
+                      strainTypes: [],
+                      dealTypes: [],
+                      dispensaryId: '',
+                      brand: '',
                       minPrice: '',
                       maxPrice: '',
                       minTHC: '',
-                      strainType: '',
                       sortBy: 'effective_price',
                       area: userLocation?.isInVegas ? userLocation.selectedArea || '' : ''
                     })}
@@ -327,19 +479,27 @@ export default function SearchContent() {
                       <div className="space-y-2 md:space-y-3 mb-4">
                         <div className="flex justify-between text-sm md:text-base">
                           <span className="text-gray-600">Category</span>
-                          <span className="font-medium capitalize">{product.category}</span>
+                          <span className="font-medium capitalize">{product.category?.replace('_', ' ')}</span>
                         </div>
+                        {product.brand && (
+                          <div className="flex justify-between text-sm md:text-base">
+                            <span className="text-gray-600">Brand</span>
+                            <span className="font-medium">{product.brand}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between text-sm md:text-base">
                           <span className="text-gray-600">THC</span>
                           <span className="font-medium">{product.thc_percentage}%</span>
                         </div>
                         <div className="flex justify-between text-sm md:text-base">
                           <span className="text-gray-600">Strain</span>
-                          <span className="font-medium capitalize">{product.strain_type}</span>
+                          <span className="font-medium capitalize">{product.strain_type || 'N/A'}</span>
                         </div>
-                        <div className="flex justify-between text-sm md:text-base">
+                        <div className="flex flex-col sm:flex-row sm:justify-between text-sm md:text-base gap-1 sm:gap-2">
                           <span className="text-gray-600">Dispensary</span>
-                          <span className="font-medium">{product.dispensaries?.name}</span>
+                          <span className="font-medium sm:text-right break-words">
+                            {product.dispensaries?.name}
+                          </span>
                         </div>
                         <div className="flex justify-between text-sm md:text-base">
                           <span className="text-gray-600">Distance</span>
@@ -359,6 +519,10 @@ export default function SearchContent() {
                             <div className="text-xs md:text-sm text-gray-500">
                               {product.deal_type === 'bundle' && product.deal_quantity > 1
                                 ? `${product.deal_quantity} for $${product.deal_total_price}`
+                                : product.deal_type === 'discount'
+                                ? `${product.deal_total_price} (${Math.round(((product.price - product.deal_total_price) / product.price) * 100)}% off)`
+                                : product.deal_type === 'bogo'
+                                ? 'BOGO Deal'
                                 : 'per unit'}
                             </div>
                           </div>
