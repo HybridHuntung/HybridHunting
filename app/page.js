@@ -1,7 +1,8 @@
 'use client'
 import Image from 'next/image';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
+import { supabase } from '@/lib/supabase'
 import AuthModal from '../components/AuthModal'
 import UserMenu from '../components/UserMenu'
 import FavoritesBadge from '@/components/FavoritesBadge';
@@ -14,6 +15,9 @@ export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [expandedCategory, setExpandedCategory] = useState(null)
+  const [useLocation, setUseLocation] = useState(true)
+  const [selectedCity, setSelectedCity] = useState('')
+  const [uniqueCities, setUniqueCities] = useState([])
   
   const categories = [
     { 
@@ -46,6 +50,83 @@ export default function Home() {
     },
   ];
 
+  // Load cities from database
+  useEffect(() => {
+    async function loadCities() {
+      const { data } = await supabase
+        .from('dispensaries')
+        .select('city')
+        .eq('state', 'NV')
+        .not('city', 'is', null)
+      
+      const cities = [...new Set(data?.map(d => d.city).filter(c => c))]
+      setUniqueCities(cities.sort())
+    }
+    loadCities()
+  }, [])
+
+  // Load saved location preference
+  useEffect(() => {
+    const savedUseLocation = localStorage.getItem('hybridhunting-useLocation')
+    const savedCity = localStorage.getItem('hybridhunting-city')
+    
+    if (savedUseLocation !== null) {
+      setUseLocation(savedUseLocation === 'true')
+    }
+    if (savedCity) {
+      setSelectedCity(savedCity)
+    }
+  }, [])
+
+  // Save location preference when changed
+  const handleUseLocationChange = (value) => {
+    setUseLocation(value)
+    localStorage.setItem('hybridhunting-useLocation', value)
+    if (!value && selectedCity) {
+      localStorage.setItem('hybridhunting-city', selectedCity)
+    }
+  }
+
+  const handleCityChange = (city) => {
+    setSelectedCity(city)
+    if (city) {
+      localStorage.setItem('hybridhunting-city', city)
+    } else {
+      localStorage.removeItem('hybridhunting-city')
+    }
+  }
+
+  // Build the search URL with all parameters
+  const getSearchUrl = () => {
+    const params = new URLSearchParams()
+    
+    if (useLocation) {
+      params.set('useLocation', 'true')
+    } else if (selectedCity && selectedCity !== '') {
+      params.set('city', selectedCity)
+    } else {
+      params.set('useLocation', 'false')
+    }
+    
+    return `/search-wrapper${params.toString() ? `?${params.toString()}` : ''}`
+  }
+
+  // Get URL for category clicks
+  const getCategoryUrl = (searchTerm) => {
+    const params = new URLSearchParams()
+    params.set('category', searchTerm)
+    
+    if (useLocation) {
+      params.set('useLocation', 'true')
+    } else if (selectedCity && selectedCity !== '') {
+      params.set('city', selectedCity)
+    } else {
+      params.set('useLocation', 'false')
+    }
+    
+    return `/search-wrapper?${params.toString()}`
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* --- 1. MOBILE-FRIENDLY NAVIGATION --- */}
@@ -55,7 +136,7 @@ export default function Home() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/search-wrapper" className="text-[#2A2A2A] hover:underline">Deals</Link>
+            <Link href={getSearchUrl()} className="text-[#2A2A2A] hover:underline">Deals</Link>
             <Link href="/favorites" className="text-[#2A2A2A] hover:underline">Favorites</Link>
             <a href="#" className="text-[#2A2A2A] hover:underline">How It Works</a>
             <div className="flex items-center gap-4">
@@ -103,7 +184,7 @@ export default function Home() {
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pt-4 border-t flex flex-col gap-3">
-            <Link href="/search-wrapper" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>Deals</Link>
+            <Link href={getSearchUrl()} className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>Deals</Link>
             <Link href="/favorites" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>Favorites</Link>
             <a href="#" className="text-[#2A2A2A] hover:underline py-2" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
           </div>
@@ -126,14 +207,78 @@ export default function Home() {
             </h1>
             <p className="text-base md:text-xl text-[#2A2A2A] mb-6 md:mb-8">Compare prices, find bundles, and save instantly.</p>
 
+            {/* Location Toggle */}
+            <div className="max-w-2xl mx-auto mb-6">
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => handleUseLocationChange(true)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                    useLocation
+                      ? 'bg-[#2A2A2A] text-white'
+                      : 'bg-white/60 text-[#2A2A2A] hover:bg-white/80'
+                  }`}
+                >
+                  📍 Use My Location
+                </button>
+                <button
+                  onClick={() => handleUseLocationChange(false)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                    !useLocation
+                      ? 'bg-[#2A2A2A] text-white'
+                      : 'bg-white/60 text-[#2A2A2A] hover:bg-white/80'
+                  }`}
+                >
+                  🏙️ Choose City
+                </button>
+              </div>
+              
+              {/* City dropdown - only show when not using location */}
+              {!useLocation && uniqueCities.length > 0 && (
+                <div className="mt-3">
+                  <select
+                    value={selectedCity}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                    className="w-full max-w-xs mx-auto px-4 py-2 rounded-lg border border-gray-300 text-sm bg-white"
+                  >
+                    <option value="">All Cities</option>
+                    {uniqueCities.map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Showing deals from selected city
+                  </p>
+                </div>
+              )}
+              
+              {useLocation && (
+                <p className="text-xs text-gray-600 mt-2">
+                  Using your location to find nearby deals
+                </p>
+              )}
+            </div>
+
             {/* SEARCH BAR */}
-            <form action="/search-wrapper" method="GET" className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-0 mb-6 md:mb-8">
+            <form 
+              action="/search-wrapper" 
+              method="GET" 
+              className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-0 mb-6 md:mb-8"
+            >
               <input
                 type="text"
                 name="q"
                 placeholder="Search for flower, edibles, brands..."
                 className="flex-grow px-4 md:px-6 py-3 md:py-4 rounded-lg sm:rounded-l-2xl sm:rounded-r-none border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#EDBD8F] text-sm md:text-base"
               />
+              {useLocation && (
+                <input type="hidden" name="useLocation" value="true" />
+              )}
+              {!useLocation && selectedCity && selectedCity !== '' && (
+                <input type="hidden" name="city" value={selectedCity} />
+              )}
+              {!useLocation && (!selectedCity || selectedCity === '') && (
+                <input type="hidden" name="useLocation" value="false" />
+              )}
               <button
                 type="submit"
                 className="px-6 md:px-8 py-3 md:py-4 bg-[#EDBD8F] text-[#2A2A2A] font-bold rounded-lg sm:rounded-r-2xl sm:rounded-l-none hover:opacity-90 transition text-sm md:text-base"
@@ -146,7 +291,8 @@ export default function Home() {
               Try "Hybrid Flower" or "3.5g deals"
             </p>
 
-            <div className="max-w-2xl mx-auto mt-6 md:mt-8">
+            {/* Keep LocationDetector for compatibility but hide or repurpose */}
+            <div className="max-w-2xl mx-auto mt-6 md:mt-8 hidden">
               <LocationDetector />
             </div>
           </div>
@@ -180,7 +326,7 @@ export default function Home() {
                           {item.description}
                         </p>
                         <Link
-                          href={`/search-wrapper?category=${item.searchTerm}`}
+                          href={getCategoryUrl(item.searchTerm)}
                           className="inline-block px-4 py-2 bg-white/50 text-[#2A2A2A] font-bold rounded-lg hover:bg-white/70 transition text-sm"
                         >
                           Browse {item.label} Deals →
@@ -215,14 +361,16 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl md:text-4xl font-bold text-[#2A2A2A] mb-6 md:mb-10">Ready to start hunting?</h2>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-8 md:mb-12">
-            <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">Deals</a>
+            <Link href={getSearchUrl()} className="text-base md:text-xl text-[#2A2A2A] hover:underline">Deals</Link>
             <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">How It Works</a>
             <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">About</a>
             <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">Contact</a>
           </div>
-          <button className="bg-[#C8D8C0] text-[#2A2A2A] font-bold px-8 md:px-12 py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-xl hover:opacity-90">
-            Find Deals
-          </button>
+          <Link href={getSearchUrl()}>
+            <button className="bg-[#C8D8C0] text-[#2A2A2A] font-bold px-8 md:px-12 py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-xl hover:opacity-90">
+              Find Deals
+            </button>
+          </Link>
           <p className="mt-8 md:mt-12 text-sm md:text-base text-[#2A2A2A]">
             © 2026 HybridHunting. For legal use in Nevada. Consume responsibly.
           </p>

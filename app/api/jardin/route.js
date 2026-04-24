@@ -22,7 +22,7 @@ async function fetchProductsFromPage(dispensarySlug, pageNumber) {
 }
 
 async function syncDispensary(dispensaryConfig) {
-  const { name, leaflySlug, area, state, address, lat, lng } = dispensaryConfig
+  const { name, leaflySlug, city, state, address, lat, lng, website } = dispensaryConfig
   
   console.log(`Syncing ${name}...`)
   
@@ -38,11 +38,12 @@ async function syncDispensary(dispensaryConfig) {
       .from('dispensaries')
       .insert({
         name: name,
-        area: area,
+        city: city,
         state: state,
         address: address,
         lat: lat,
         lng: lng,
+        website: website, 
         is_active: true
       })
       .select()
@@ -56,7 +57,10 @@ async function syncDispensary(dispensaryConfig) {
   
   // Fetch products
   let page1 = await fetchProductsFromPage(leaflySlug, 1)
+  console.log(`Page 1 menu items count for ${name}: ${page1.menuItems.length}`)
+  console.log(`Total items reported: ${page1.totalItems}`)
   let allProducts = [...page1.menuItems]
+  console.log(`Total products collected after pagination: ${allProducts.length}`)
   let totalItems = page1.totalItems
   
   const productsPerPage = page1.menuItems.length
