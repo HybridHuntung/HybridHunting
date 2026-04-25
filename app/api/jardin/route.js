@@ -76,7 +76,6 @@ async function syncDispensary(dispensaryConfig) {
     if (pageData.menuItems && pageData.menuItems.length > 0) {
       allProducts = [...allProducts, ...pageData.menuItems]
     }
-    // 2 second delay between pages (reduced from 5)
     await sleep(2000)
   }
   
@@ -120,6 +119,30 @@ async function syncDispensary(dispensaryConfig) {
       mappedCategory = 'vapes'
     }
     
+    // Extract deal information
+    let dealType = 'single'
+    let dealQuantity = null
+    let dealTotalPrice = null
+    let discountPercentage = null
+    
+    if (item.deal) {
+      if (item.deal.kind === 'bundle') {
+        dealType = 'bundle'
+        dealQuantity = item.deal.buyQuantity || 0
+        dealTotalPrice = item.deal.discountAmount ? item.deal.discountAmount / 100 : null
+      } else if (item.deal.kind === 'sale' && item.deal.discountType === 'percent') {
+        dealType = 'discount'
+        discountPercentage = item.deal.discountAmount
+        if (item.price && discountPercentage) {
+          dealTotalPrice = item.price * (1 - discountPercentage / 100)
+        }
+      } else if (item.deal.kind === 'bogo') {
+        dealType = 'bogo'
+        dealQuantity = item.deal.buyQuantity || 1
+        dealTotalPrice = item.deal.discountAmount ? item.deal.discountAmount / 100 : null
+      }
+    }
+    
     return {
       dispensary_id: dispensaryId,
       name: item.name,
@@ -128,6 +151,10 @@ async function syncDispensary(dispensaryConfig) {
       thc_percentage: item.thcContent || null,
       strain_type: item.strain?.category?.toLowerCase() || null,
       brand: item.brandName || null,
+      deal_type: dealType,
+      deal_quantity: dealQuantity,
+      deal_total_price: dealTotalPrice,
+      discount_percentage: discountPercentage,
     }
   })
   

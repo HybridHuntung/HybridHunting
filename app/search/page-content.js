@@ -78,27 +78,26 @@ export default function SearchContent() {
   }, [])
 
   // Read parameters from URL and localStorage
-useEffect(() => {
-  const categoryFromUrl = searchParams.get('category')
-  const cityFromUrl = searchParams.get('city')
-  const useLocationFromUrl = searchParams.get('useLocation')
-  const searchQueryFromUrl = searchParams.get('q')  // Add this line
-  
-  // Set category from URL
-  if (categoryFromUrl && !urlProcessed) {
-    setFilters(prev => ({ ...prev, categories: [categoryFromUrl] }))
-    setUrlProcessed(true)
-  }
-  
-  // Set search keyword from URL
-  if (searchQueryFromUrl && !urlProcessed) {
-    setFilters(prev => ({ ...prev, searchKeyword: searchQueryFromUrl }))
-  }
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category')
+    const cityFromUrl = searchParams.get('city')
+    const useLocationFromUrl = searchParams.get('useLocation')
+    const searchQueryFromUrl = searchParams.get('q')
+    
+    // Set category from URL
+    if (categoryFromUrl && !urlProcessed) {
+      setFilters(prev => ({ ...prev, categories: [categoryFromUrl] }))
+    }
+    
+    // Set search keyword from URL
+    if (searchQueryFromUrl && !urlProcessed) {
+      setFilters(prev => ({ ...prev, searchKeyword: searchQueryFromUrl }))
+    }
 
-  // Mark URL as processed after handling both
-if ((categoryFromUrl || cityFromUrl || useLocationFromUrl || searchQueryFromUrl) && !urlProcessed) {
-  setUrlProcessed(true)
-}
+    // Mark URL as processed after handling both
+    if ((categoryFromUrl || cityFromUrl || useLocationFromUrl || searchQueryFromUrl) && !urlProcessed) {
+      setUrlProcessed(true)
+    }
     
     // URL parameters take precedence over localStorage
     if (useLocationFromUrl === 'true') {
@@ -231,23 +230,24 @@ if ((categoryFromUrl || cityFromUrl || useLocationFromUrl || searchQueryFromUrl)
       if (countError) throw countError
       setTotalCount(count || 0)
       
-      // Apply pagination
-      const start = (currentPage - 1) * PRODUCTS_PER_PAGE
-      const end = start + PRODUCTS_PER_PAGE - 1
-      productQuery = productQuery.range(start, end)
+      let productsData;
       
-      // Apply sorting
-      if (filters.sortBy === 'thc') {
-        productQuery = productQuery.order('thc_percentage', { ascending: false })
+      // For price and distance sorting, fetch all products then sort in JavaScript
+      if (filters.sortBy === 'effective_price' || filters.sortBy === 'distance') {
+        const { data: allProducts, error: allError } = await productQuery
+        if (allError) throw allError
+        productsData = allProducts || []
       } else {
-        productQuery = productQuery.order('created_at', { ascending: false })
+        // Apply pagination for other sorts
+        const start = (currentPage - 1) * PRODUCTS_PER_PAGE
+        const end = start + PRODUCTS_PER_PAGE - 1
+        const { data: paginatedProducts, error: pageError } = await productQuery.range(start, end)
+        if (pageError) throw pageError
+        productsData = paginatedProducts || []
       }
       
-      const { data: products, error } = await productQuery
-      if (error) throw error
-      
-      if (products && products.length > 0) {
-        const dispensaryIds = products.map(p => p.dispensary_id).filter(id => id != null)
+      if (productsData.length > 0) {
+        const dispensaryIds = productsData.map(p => p.dispensary_id).filter(id => id != null)
         
         let dispensaryQuery = supabase.from('dispensaries').select('*')
         if (dispensaryIds.length > 0) dispensaryQuery = dispensaryQuery.in('id', dispensaryIds)
@@ -258,7 +258,7 @@ if ((categoryFromUrl || cityFromUrl || useLocationFromUrl || searchQueryFromUrl)
         const dispensaryMap = {}
         dispensaries?.forEach(d => { dispensaryMap[d.id] = d })
         
-        const transformedProducts = products.map(product => {
+        let transformedProducts = productsData.map(product => {
           const dispensary = dispensaryMap[product.dispensary_id] || {}
           let effectivePrice = product.price || 0
           let savings = 0
@@ -290,10 +290,20 @@ if ((categoryFromUrl || cityFromUrl || useLocationFromUrl || searchQueryFromUrl)
           }
         })
         
+        // Apply sorting based on selected option
         if (filters.sortBy === 'effective_price') {
           transformedProducts.sort((a, b) => a.effectivePrice - b.effectivePrice)
+        } else if (filters.sortBy === 'thc') {
+          transformedProducts.sort((a, b) => (b.thc_percentage || 0) - (a.thc_percentage || 0))
         } else if (filters.sortBy === 'distance' && useLocation) {
           transformedProducts.sort((a, b) => (a.distance || 999) - (b.distance || 999))
+        }
+        
+        // Apply pagination AFTER sorting for price and distance
+        if (filters.sortBy === 'effective_price' || filters.sortBy === 'distance') {
+          const start = (currentPage - 1) * PRODUCTS_PER_PAGE
+          const end = start + PRODUCTS_PER_PAGE
+          transformedProducts = transformedProducts.slice(start, end)
         }
         
         setProducts(transformedProducts)
@@ -740,81 +750,81 @@ if ((categoryFromUrl || cityFromUrl || useLocationFromUrl || searchQueryFromUrl)
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {products.map(product => (
-                    <div key={product.id} className="bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition">
-                      {product.savings > 0 && (
-                        <div className="bg-[#EDBD8F] text-[#2A2A2A] px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base font-bold text-center">
-                          Save {product.savings}%
-                        </div>
-                      )}
-                      
-                      <div className="p-4 md:p-6">
-                        <h3 className="text-lg md:text-xl font-bold text-[#2A2A2A] mb-2">{product.name}</h3>
-                        
-                        <div className="space-y-2 md:space-y-3 mb-4">
-                          <div className="flex justify-between text-sm md:text-base">
-                            <span className="text-gray-600">Category</span>
-                            <span className="font-medium capitalize">{product.category?.replace('_', ' ')}</span>
-                          </div>
-                          
-                          {product.brand && (
-                            <div className="flex justify-between text-sm md:text-base">
-                              <span className="text-gray-600">Brand</span>
-                              <span className="font-medium">{product.brand}</span>
-                            </div>
-                          )}
-                          
-                          {product.thc_percentage && (
-                            <div className="flex justify-between text-sm md:text-base">
-                              <span className="text-gray-600">THC</span>
-                              <span className="font-medium">{product.thc_percentage}%</span>
-                            </div>
-                          )}
-                          
-                          {product.strain_type && (
-                            <div className="flex justify-between text-sm md:text-base">
-                              <span className="text-gray-600">Strain</span>
-                              <span className="font-medium capitalize">{product.strain_type}</span>
-                            </div>
-                          )}
-                          
-                          <div className="flex flex-col sm:flex-row sm:justify-between text-sm md:text-base gap-1 sm:gap-2">
-                            <span className="text-gray-600">Dispensary</span>
-                            <span className="font-medium sm:text-right break-words">
-                              {product.dispensaries?.name}
-                            </span>
-                          </div>
-                          
-                          {product.distance && useLocation && (
-                            <div className="flex justify-between text-sm md:text-base">
-                              <span className="text-gray-600">Distance</span>
-                              <span className="font-medium">{product.distance} mi</span>
-                            </div>
-                          )}
-                        </div>
+                    <div key={product.id} className="relative bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition">
+  {product.savings > 0 && (
+    <div className="absolute top-2 right-2 bg-[#EDBD8F] text-[#2A2A2A] px-2 py-0.5 rounded-full text-xs font-bold z-10">
+      Save {product.savings}%
+    </div>
+  )}
+  
+  <div className="p-4 md:p-6 flex flex-col h-full">
+    <h3 className="text-lg md:text-xl font-bold text-[#2A2A2A] mb-2 line-clamp-2">{product.name}</h3>
+    
+    <div className="space-y-2 md:space-y-3 mb-4 flex-grow">
+      <div className="flex justify-between text-sm md:text-base">
+        <span className="text-gray-600">Category</span>
+        <span className="font-medium capitalize">{product.category?.replace('_', ' ')}</span>
+      </div>
+      
+      {product.brand && (
+        <div className="flex justify-between text-sm md:text-base">
+          <span className="text-gray-600">Brand</span>
+          <span className="font-medium truncate max-w-[150px] text-right">{product.brand}</span>
+        </div>
+      )}
+      
+      {product.thc_percentage && (
+        <div className="flex justify-between text-sm md:text-base">
+          <span className="text-gray-600">THC</span>
+          <span className="font-medium">{product.thc_percentage}%</span>
+        </div>
+      )}
+      
+      {product.strain_type && (
+        <div className="flex justify-between text-sm md:text-base">
+          <span className="text-gray-600">Strain</span>
+          <span className="font-medium capitalize">{product.strain_type}</span>
+        </div>
+      )}
+      
+      <div className="flex justify-between text-sm md:text-base">
+        <span className="text-gray-600 shrink-0">Dispensary</span>
+        <span className="font-medium text-right break-words max-w-[60%]">
+          {product.dispensaries?.name}
+        </span>
+      </div>
+      
+      {product.distance && useLocation && (
+        <div className="flex justify-between text-sm md:text-base">
+          <span className="text-gray-600">Distance</span>
+          <span className="font-medium">{product.distance} mi</span>
+        </div>
+      )}
+    </div>
 
-                        <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                            <div>
-                              <div className="text-xl md:text-2xl font-bold text-[#2A2A2A]">
-                                ${product.effectivePrice ? product.effectivePrice.toFixed(2) : product.price?.toFixed(2) || '0.00'}
-                              </div>
-                              <div className="text-xs md:text-sm text-gray-500">
-                                {product.deal_type === 'bundle' && product.deal_quantity > 1
-                                  ? `${product.deal_quantity} for $${product.deal_total_price}`
-                                  : product.deal_type === 'discount'
-                                  ? `${product.deal_total_price} (${Math.round(((product.price - product.deal_total_price) / product.price) * 100)}% off)`
-                                  : product.deal_type === 'bogo'
-                                  ? 'BOGO Deal'
-                                  : 'per unit'}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 md:gap-3">
-                              <FavoriteButton productId={product.id} />
-                              <Link href={`/product/${product.id}`}>
-                                <button className="px-4 py-2 md:px-6 md:py-3 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 text-sm md:text-base">
-                                  View Deal
-                                </button>
-                              </Link>
+    <div className="mt-4 pt-4 border-t">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <div className="text-xl md:text-2xl font-bold text-[#2A2A2A]">
+            ${product.effectivePrice ? product.effectivePrice.toFixed(2) : product.price?.toFixed(2) || '0.00'}
+          </div>
+          <div className="text-xs md:text-sm text-gray-500">
+            {product.deal_type === 'bundle' && product.deal_quantity && product.deal_total_price
+              ? `${product.deal_quantity} for $${product.deal_total_price.toFixed(2)}`
+              : product.deal_type === 'discount' && product.discount_percentage
+              ? `${product.discount_percentage}% off`
+              : product.deal_type === 'bogo'
+              ? 'BOGO Deal'
+              : ''}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 md:gap-3">
+          <FavoriteButton productId={product.id} />
+          <Link href={`/product/${product.id}`}>
+            <button className="px-4 py-2 md:px-6 md:py-3 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 text-sm md:text-base whitespace-nowrap">
+              View Deal
+            </button>
+          </Link>
                             </div>
                           </div>
                         </div>
