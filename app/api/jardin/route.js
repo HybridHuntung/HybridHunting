@@ -21,10 +21,14 @@ async function fetchProductsFromPage(dispensarySlug, pageNumber) {
   }
 }
 
+// Sleep function for delays
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
 async function syncDispensary(dispensaryConfig) {
   const { name, leaflySlug, city, state, address, lat, lng, website } = dispensaryConfig
   
-  console.log(`Syncing ${name}...`)
+  console.log(`\n📋 Syncing ${name}...`)
+  console.log(`   Slug: ${leaflySlug}`)
   
   // Find or create dispensary in database
   let { data: dispensaryData, error: dispensaryError } = await supabase
@@ -34,6 +38,7 @@ async function syncDispensary(dispensaryConfig) {
     .single()
   
   if (dispensaryError || !dispensaryData) {
+    console.log(`   Dispensary not found, creating...`)
     const { data: newDispensary, error: insertError } = await supabase
       .from('dispensaries')
       .insert({
@@ -51,28 +56,31 @@ async function syncDispensary(dispensaryConfig) {
     
     if (insertError) throw new Error(`Failed to add dispensary ${name}: ${insertError.message}`)
     dispensaryData = newDispensary
+    console.log(`   Created with ID: ${dispensaryData.id}`)
   }
   
   const dispensaryId = dispensaryData.id
   
   // Fetch products
   let page1 = await fetchProductsFromPage(leaflySlug, 1)
-  console.log(`Page 1 menu items count for ${name}: ${page1.menuItems.length}`)
-  console.log(`Total items reported: ${page1.totalItems}`)
   let allProducts = [...page1.menuItems]
-  console.log(`Total products collected after pagination: ${allProducts.length}`)
   let totalItems = page1.totalItems
   
   const productsPerPage = page1.menuItems.length
   const totalPages = Math.ceil(totalItems / productsPerPage)
+  
+  console.log(`   Products per page: ${productsPerPage}, Total pages: ${totalPages}`)
   
   for (let page = 2; page <= totalPages; page++) {
     const pageData = await fetchProductsFromPage(leaflySlug, page)
     if (pageData.menuItems && pageData.menuItems.length > 0) {
       allProducts = [...allProducts, ...pageData.menuItems]
     }
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // 2 second delay between pages (reduced from 5)
+    await sleep(2000)
   }
+  
+  console.log(`   Total products fetched: ${allProducts.length}`)
   
   // Map categories
   const categoryMap = {
@@ -99,8 +107,10 @@ async function syncDispensary(dispensaryConfig) {
     .eq('dispensary_id', dispensaryId)
   
   const existingNames = new Set(existingProducts?.map(p => p.name) || [])
+  console.log(`   Existing products: ${existingNames.size}`)
   
   const newProducts = allProducts.filter(item => !existingNames.has(item.name))
+  console.log(`   New products to add: ${newProducts.length}`)
   
   const productsToInsert = newProducts.map(item => {
     const leaflyCategory = item.productCategory?.toLowerCase() || 'other'
@@ -147,27 +157,39 @@ export async function GET(request) {
       const specificDispensary = dispensariesToSync.find(d => d.leaflySlug === specificSlug)
       if (specificDispensary) {
         dispensariesToProcess = [specificDispensary]
+        console.log(`\n🎯 Syncing specific dispensary: ${specificDispensary.name}`)
       } else {
         return NextResponse.json({ 
           success: false, 
           error: `Dispensary with slug "${specificSlug}" not found in config`
         }, { status: 404 })
       }
+    } else {
+      console.log(`\n🎯 Syncing ALL ${dispensariesToProcess.length} dispensaries`)
     }
     
     const results = []
     
-    for (const dispensary of dispensariesToProcess) {
+    for (let i = 0; i < dispensariesToProcess.length; i++) {
+      const dispensary = dispensariesToProcess[i]
+      console.log(`\n📌 [${i + 1}/${dispensariesToProcess.length}] Processing...`)
+      
       try {
         const result = await syncDispensary(dispensary)
         results.push(result)
-        console.log(`✅ ${result.name}: +${result.newProductsAdded} new products`)
+        console.log(`✅ ${result.name}: +${result.newProductsAdded} new products (Total: ${result.totalProducts})`)
       } catch (error) {
         console.error(`❌ Failed to sync ${dispensary.name}:`, error)
         results.push({
           name: dispensary.name,
           error: error.message
         })
+      }
+      
+      // 15 second delay between dispensaries (reduced from 30)
+      if (i < dispensariesToProcess.length - 1) {
+        console.log(`   Waiting 15 seconds before next dispensary...`)
+        await sleep(15000)
       }
     }
     
