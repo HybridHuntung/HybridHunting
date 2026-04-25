@@ -179,26 +179,38 @@ export default function ProductDetailPage() {
                 </div>
                 
                 <div className="flex gap-3">
-                    <FavoriteButton productId={product.id} />
-                        {dispensary?.website ? (
-                            <a 
-                                href={dispensary.website} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="px-6 py-3 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 inline-block text-center"
-                             >
-                                Visit Dispensary Website →
-                            </a>
-                         ) : (
-                        <button 
-                                disabled
-                                className="px-6 py-3 bg-gray-300 text-gray-500 font-bold rounded-lg cursor-not-allowed"
-                             >
-                                Website Unavailable
-                         </button>
-                     )}
+                  <FavoriteButton productId={product.id} />
+                  {dispensary?.website ? (
+                    <a 
+                      href={dispensary.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 inline-block text-center"
+                    >
+                      Visit Dispensary Website →
+                    </a>
+                  ) : (
+                    <button 
+                      disabled
+                      className="px-6 py-3 bg-gray-300 text-gray-500 font-bold rounded-lg cursor-not-allowed"
+                    >
+                      Website Unavailable
+                    </button>
+                  )}
                 </div>
               </div>
+            </div>
+
+            {/* Legal Disclaimer - Add this section */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Prices and availability are provided by third-party dispensaries and may change without notice.
+                HybridHunting does not guarantee the accuracy of any pricing or product information shown.
+                Please verify all details directly with the dispensary before making a purchase.
+              </p>
+              <p className="text-xs text-gray-400 leading-relaxed mt-2">
+                Nothing on this website is intended to be medical advice. Always consult a physician before using cannabis products.
+              </p>
             </div>
           </div>
         </div>

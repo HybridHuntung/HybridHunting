@@ -871,6 +871,25 @@ export default function SearchContent() {
                     </button>
                   </div>
                 )}
+
+                {/* Legal Disclaimer - Search Page */}
+<div className="mt-12 pt-8 border-t border-gray-200">
+  <p className="text-xs text-gray-500 leading-relaxed text-center">
+    HybridHunting is an informational directory only. We do not sell, distribute, or manufacture 
+    any cannabis products. All transactions occur between the user and the licensed dispensary.
+  </p>
+  <p className="text-xs text-gray-500 leading-relaxed text-center mt-2">
+    Prices and availability are provided by third-party dispensaries and may change without notice.
+    Always verify pricing and age requirements directly with the dispensary.
+  </p>
+  <p className="text-xs text-gray-500 leading-relaxed text-center mt-2">
+    Must be 21 or older to view this site. Please consume responsibly.
+  </p>
+  <div className="flex justify-center gap-4 mt-3">
+    <Link href="/terms" className="text-xs text-gray-400 hover:underline">Terms of Service</Link>
+    <Link href="/privacy" className="text-xs text-gray-400 hover:underline">Privacy Policy</Link>
+  </div>
+</div>
               </>
             )}
           </div>

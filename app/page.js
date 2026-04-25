@@ -358,24 +358,39 @@ export default function Home() {
 
       {/* --- 4. FOOTER with Light Peach Background --- */}
       <footer className="bg-[#F5D9C0] px-4 md:px-6 py-12 md:py-16 rounded-t-2xl md:rounded-t-3xl">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl md:text-4xl font-bold text-[#2A2A2A] mb-6 md:mb-10">Ready to start hunting?</h2>
-          <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-8 md:mb-12">
-            <Link href={getSearchUrl()} className="text-base md:text-xl text-[#2A2A2A] hover:underline">Deals</Link>
-            <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">How It Works</a>
-            <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">About</a>
-            <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">Contact</a>
-          </div>
-          <Link href={getSearchUrl()}>
-            <button className="bg-[#C8D8C0] text-[#2A2A2A] font-bold px-8 md:px-12 py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-xl hover:opacity-90">
-              Find Deals
-            </button>
-          </Link>
-          <p className="mt-8 md:mt-12 text-sm md:text-base text-[#2A2A2A]">
-            © 2026 HybridHunting. For legal use in Nevada. Consume responsibly.
-          </p>
-        </div>
-      </footer>
+  <div className="max-w-4xl mx-auto text-center">
+    <h2 className="text-2xl md:text-4xl font-bold text-[#2A2A2A] mb-6 md:mb-10">Ready to start hunting?</h2>
+    <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-8 md:mb-12">
+      <Link href={getSearchUrl()} className="text-base md:text-xl text-[#2A2A2A] hover:underline">Deals</Link>
+      <Link href="/terms" className="text-base md:text-xl text-[#2A2A2A] hover:underline">Terms</Link>
+      <Link href="/privacy" className="text-base md:text-xl text-[#2A2A2A] hover:underline">Privacy</Link>
+      <a href="#" className="text-base md:text-xl text-[#2A2A2A] hover:underline">Contact</a>
+    </div>
+    <Link href={getSearchUrl()}>
+      <button className="bg-[#C8D8C0] text-[#2A2A2A] font-bold px-8 md:px-12 py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-xl hover:opacity-90">
+        Find Deals
+      </button>
+    </Link>
+    
+    {/* Legal Disclaimer - Add this section */}
+    <div className="mt-12 pt-8 border-t border-[#2A2A2A]/20">
+      <p className="text-xs text-[#2A2A2A]/70 leading-relaxed">
+        HybridHunting is an informational directory only. We do not sell, distribute, or manufacture 
+        any cannabis products. All transactions occur between the user and the licensed dispensary.
+      </p>
+      <p className="text-xs text-[#2A2A2A]/70 leading-relaxed mt-2">
+        Prices and availability are provided by third-party dispensaries and may change without notice.
+        Always verify pricing and age requirements directly with the dispensary.
+      </p>
+      <p className="text-xs text-[#2A2A2A]/70 leading-relaxed mt-2">
+        Must be 21 or older to view this site. Please consume responsibly.
+      </p>
+      <p className="text-xs text-[#2A2A2A]/50 mt-4">
+        © 2026 HybridHunting. For legal use in Nevada only.
+      </p>
+    </div>
+  </div>
+</footer>
     </div>
   );
 }
