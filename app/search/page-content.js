@@ -143,35 +143,13 @@ export default function SearchContent() {
     }
   }, [searchParams, urlProcessed])
 
-  // Get user's location if enabled
-  useEffect(() => {
-    if (!useLocation) {
-      setUserCoords(null)
-      return
-    }
-    
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserCoords({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          })
-          setLocationDenied(false)
-        },
-        (error) => {
-          console.log('Location permission denied:', error)
-          setLocationDenied(true)
-          setUseLocation(false)
-          localStorage.setItem('hybridhunting-useLocation', 'false')
-        }
-      )
-    } else {
-      setLocationDenied(true)
-      setUseLocation(false)
-      localStorage.setItem('hybridhunting-useLocation', 'false')
-    }
-  }, [useLocation])
+  // Check saved location preference on page load only (no automatic geolocation)
+useEffect(() => {
+  const savedUseLocation = localStorage.getItem('hybridhunting-useLocation')
+  if (savedUseLocation === 'false') {
+    setUseLocation(false)
+  }
+}, [])
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -332,20 +310,60 @@ export default function SearchContent() {
   }
 
   const handleUseLocationChange = (value) => {
-    setUseLocation(value)
-    localStorage.setItem('hybridhunting-useLocation', value)
-    if (value) {
-      setFilters(prev => ({ ...prev, city: '' }))
-      setSelectedCity('')
-      localStorage.removeItem('hybridhunting-city')
-    } else {
-      if (selectedCity) {
-        localStorage.setItem('hybridhunting-city', selectedCity)
-      } else {
+  if (value) {
+    // Check if geolocation is available
+    if (!navigator.geolocation) {
+      alert("Your browser doesn't support location services. Please use city selection instead.")
+      return
+    }
+    
+    // Show loading state (optional)
+    setUseLocation(true) // Optimistic update
+    
+    // Request permission immediately
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // Success - update state
+        setUseLocation(true)
+        localStorage.setItem('hybridhunting-useLocation', 'true')
+        setFilters(prev => ({ ...prev, city: '' }))
+        setSelectedCity('')
         localStorage.removeItem('hybridhunting-city')
+        setUserCoords({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        })
+        setLocationDenied(false)
+      },
+      (error) => {
+        // Failure - show message and revert
+        console.error("Geolocation error:", error)
+        let errorMessage = "Unable to get your location. "
+        if (error.code === 1) {
+          errorMessage += "Please enable location access in your browser settings."
+        } else if (error.code === 2) {
+          errorMessage += "Location unavailable. Please try again or use city selection."
+        } else {
+          errorMessage += "Please use city selection instead."
+        }
+        alert(errorMessage)
+        // Keep city mode active
+        setUseLocation(false)
+        localStorage.setItem('hybridhunting-useLocation', 'false')
       }
+    )
+  } else {
+    // Switching to city mode - no permission needed
+    setUseLocation(false)
+    localStorage.setItem('hybridhunting-useLocation', 'false')
+    if (selectedCity) {
+      localStorage.setItem('hybridhunting-city', selectedCity)
+      setFilters(prev => ({ ...prev, city: selectedCity }))
+    } else {
+      localStorage.removeItem('hybridhunting-city')
     }
   }
+}
 
   const handleCityChange = (city) => {
     setSelectedCity(city)
