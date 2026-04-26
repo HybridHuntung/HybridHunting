@@ -337,7 +337,7 @@ export default function SearchContent() {
           console.error("Geolocation error:", error)
           let errorMessage = "Unable to get your location. "
           if (error.code === 1) {
-            errorMessage = "Location access was denied. You can still use city selection below."
+            errorMessage = "Location access was denied. Please enable location access in your browser settings. You can still use city selection below."
             setLocationDenied(true)
           } else if (error.code === 2) {
             errorMessage = "Location unavailable. Please try again or use city selection."
