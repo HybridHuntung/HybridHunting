@@ -144,12 +144,12 @@ export default function SearchContent() {
   }, [searchParams, urlProcessed])
 
   // Check saved location preference on page load only (no automatic geolocation)
-useEffect(() => {
-  const savedUseLocation = localStorage.getItem('hybridhunting-useLocation')
-  if (savedUseLocation === 'false') {
-    setUseLocation(false)
-  }
-}, [])
+  useEffect(() => {
+    const savedUseLocation = localStorage.getItem('hybridhunting-useLocation')
+    if (savedUseLocation === 'false') {
+      setUseLocation(false)
+    }
+  }, [])
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -310,60 +310,58 @@ useEffect(() => {
   }
 
   const handleUseLocationChange = (value) => {
-  if (value) {
-    // Check if geolocation is available
-    if (!navigator.geolocation) {
-      alert("Your browser doesn't support location services. Please use city selection instead.")
-      return
-    }
-    
-    // Show loading state (optional)
-    setUseLocation(true) // Optimistic update
-    
-    // Request permission immediately
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        // Success - update state
-        setUseLocation(true)
-        localStorage.setItem('hybridhunting-useLocation', 'true')
-        setFilters(prev => ({ ...prev, city: '' }))
-        setSelectedCity('')
-        localStorage.removeItem('hybridhunting-city')
-        setUserCoords({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        })
-        setLocationDenied(false)
-      },
-      (error) => {
-        // Failure - show message and revert
-        console.error("Geolocation error:", error)
-        let errorMessage = "Unable to get your location. "
-        if (error.code === 1) {
-          errorMessage += "Please enable location access in your browser settings."
-        } else if (error.code === 2) {
-          errorMessage += "Location unavailable. Please try again or use city selection."
-        } else {
-          errorMessage += "Please use city selection instead."
-        }
-        alert(errorMessage)
-        // Keep city mode active
-        setUseLocation(false)
-        localStorage.setItem('hybridhunting-useLocation', 'false')
+    if (value) {
+      // Check if geolocation is available
+      if (!navigator.geolocation) {
+        alert("Your browser doesn't support location services. Please use city selection instead.")
+        return
       }
-    )
-  } else {
-    // Switching to city mode - no permission needed
-    setUseLocation(false)
-    localStorage.setItem('hybridhunting-useLocation', 'false')
-    if (selectedCity) {
-      localStorage.setItem('hybridhunting-city', selectedCity)
-      setFilters(prev => ({ ...prev, city: selectedCity }))
+      
+      // Request permission immediately
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // Success - update state
+          setUseLocation(true)
+          localStorage.setItem('hybridhunting-useLocation', 'true')
+          setFilters(prev => ({ ...prev, city: '' }))
+          setSelectedCity('')
+          localStorage.removeItem('hybridhunting-city')
+          setUserCoords({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          })
+          setLocationDenied(false)
+        },
+        (error) => {
+          // Failure - show message and revert
+          console.error("Geolocation error:", error)
+          let errorMessage = "Unable to get your location. "
+          if (error.code === 1) {
+            errorMessage = "Location access was denied. You can still use city selection below."
+            setLocationDenied(true)
+          } else if (error.code === 2) {
+            errorMessage = "Location unavailable. Please try again or use city selection."
+          } else {
+            errorMessage = "Please use city selection instead."
+          }
+          alert(errorMessage)
+          // Keep city mode active
+          setUseLocation(false)
+          localStorage.setItem('hybridhunting-useLocation', 'false')
+        }
+      )
     } else {
-      localStorage.removeItem('hybridhunting-city')
+      // Switching to city mode - no permission needed
+      setUseLocation(false)
+      localStorage.setItem('hybridhunting-useLocation', 'false')
+      if (selectedCity) {
+        localStorage.setItem('hybridhunting-city', selectedCity)
+        setFilters(prev => ({ ...prev, city: selectedCity }))
+      } else {
+        localStorage.removeItem('hybridhunting-city')
+      }
     }
   }
-}
 
   const handleCityChange = (city) => {
     setSelectedCity(city)
@@ -769,80 +767,80 @@ useEffect(() => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {products.map(product => (
                     <div key={product.id} className="relative bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition">
-  {product.savings > 0 && (
-    <div className="absolute top-2 right-2 bg-[#EDBD8F] text-[#2A2A2A] px-2 py-0.5 rounded-full text-xs font-bold z-10">
-      Save {product.savings}%
-    </div>
-  )}
-  
-  <div className="p-4 md:p-6 flex flex-col h-full">
-    <h3 className="text-lg md:text-xl font-bold text-[#2A2A2A] mb-2 line-clamp-2">{product.name}</h3>
-    
-    <div className="space-y-2 md:space-y-3 mb-4 flex-grow">
-      <div className="flex justify-between text-sm md:text-base">
-        <span className="text-gray-600">Category</span>
-        <span className="font-medium capitalize">{product.category?.replace('_', ' ')}</span>
-      </div>
-      
-      {product.brand && (
-        <div className="flex justify-between text-sm md:text-base">
-          <span className="text-gray-600">Brand</span>
-          <span className="font-medium truncate max-w-[150px] text-right">{product.brand}</span>
-        </div>
-      )}
-      
-      {product.thc_percentage && (
-        <div className="flex justify-between text-sm md:text-base">
-          <span className="text-gray-600">THC</span>
-          <span className="font-medium">{product.thc_percentage}%</span>
-        </div>
-      )}
-      
-      {product.strain_type && (
-        <div className="flex justify-between text-sm md:text-base">
-          <span className="text-gray-600">Strain</span>
-          <span className="font-medium capitalize">{product.strain_type}</span>
-        </div>
-      )}
-      
-      <div className="flex justify-between text-sm md:text-base">
-        <span className="text-gray-600 shrink-0">Dispensary</span>
-        <span className="font-medium text-right break-words max-w-[60%]">
-          {product.dispensaries?.name}
-        </span>
-      </div>
-      
-      {product.distance && useLocation && (
-        <div className="flex justify-between text-sm md:text-base">
-          <span className="text-gray-600">Distance</span>
-          <span className="font-medium">{product.distance} mi</span>
-        </div>
-      )}
-    </div>
+                      {product.savings > 0 && (
+                        <div className="absolute top-2 right-2 bg-[#EDBD8F] text-[#2A2A2A] px-2 py-0.5 rounded-full text-xs font-bold z-10">
+                          Save {product.savings}%
+                        </div>
+                      )}
+                      
+                      <div className="p-4 md:p-6 flex flex-col h-full">
+                        <h3 className="text-lg md:text-xl font-bold text-[#2A2A2A] mb-2 line-clamp-2">{product.name}</h3>
+                        
+                        <div className="space-y-2 md:space-y-3 mb-4 flex-grow">
+                          <div className="flex justify-between text-sm md:text-base">
+                            <span className="text-gray-600">Category</span>
+                            <span className="font-medium capitalize">{product.category?.replace('_', ' ')}</span>
+                          </div>
+                          
+                          {product.brand && (
+                            <div className="flex justify-between text-sm md:text-base">
+                              <span className="text-gray-600">Brand</span>
+                              <span className="font-medium truncate max-w-[150px] text-right">{product.brand}</span>
+                            </div>
+                          )}
+                          
+                          {product.thc_percentage && (
+                            <div className="flex justify-between text-sm md:text-base">
+                              <span className="text-gray-600">THC</span>
+                              <span className="font-medium">{product.thc_percentage}%</span>
+                            </div>
+                          )}
+                          
+                          {product.strain_type && (
+                            <div className="flex justify-between text-sm md:text-base">
+                              <span className="text-gray-600">Strain</span>
+                              <span className="font-medium capitalize">{product.strain_type}</span>
+                            </div>
+                          )}
+                          
+                          <div className="flex justify-between text-sm md:text-base">
+                            <span className="text-gray-600 shrink-0">Dispensary</span>
+                            <span className="font-medium text-right break-words max-w-[60%]">
+                              {product.dispensaries?.name}
+                            </span>
+                          </div>
+                          
+                          {product.distance && useLocation && (
+                            <div className="flex justify-between text-sm md:text-base">
+                              <span className="text-gray-600">Distance</span>
+                              <span className="font-medium">{product.distance} mi</span>
+                            </div>
+                          )}
+                        </div>
 
-    <div className="mt-4 pt-4 border-t">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <div className="text-xl md:text-2xl font-bold text-[#2A2A2A]">
-            ${product.effectivePrice ? product.effectivePrice.toFixed(2) : product.price?.toFixed(2) || '0.00'}
-          </div>
-          <div className="text-xs md:text-sm text-gray-500">
-            {product.deal_type === 'bundle' && product.deal_quantity && product.deal_total_price
-              ? `${product.deal_quantity} for $${product.deal_total_price.toFixed(2)}`
-              : product.deal_type === 'discount' && product.discount_percentage
-              ? `${product.discount_percentage}% off`
-              : product.deal_type === 'bogo'
-              ? 'BOGO Deal'
-              : ''}
-          </div>
-        </div>
-        <div className="flex items-center gap-2 md:gap-3">
-          <FavoriteButton productId={product.id} />
-          <Link href={`/product/${product.id}`}>
-            <button className="px-4 py-2 md:px-6 md:py-3 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 text-sm md:text-base whitespace-nowrap">
-              View Deal
-            </button>
-          </Link>
+                        <div className="mt-4 pt-4 border-t">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                              <div className="text-xl md:text-2xl font-bold text-[#2A2A2A]">
+                                ${product.effectivePrice ? product.effectivePrice.toFixed(2) : product.price?.toFixed(2) || '0.00'}
+                              </div>
+                              <div className="text-xs md:text-sm text-gray-500">
+                                {product.deal_type === 'bundle' && product.deal_quantity && product.deal_total_price
+                                  ? `${product.deal_quantity} for $${product.deal_total_price.toFixed(2)}`
+                                  : product.deal_type === 'discount' && product.discount_percentage
+                                  ? `${product.discount_percentage}% off`
+                                  : product.deal_type === 'bogo'
+                                  ? 'BOGO Deal'
+                                  : ''}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 md:gap-3">
+                              <FavoriteButton productId={product.id} />
+                              <Link href={`/product/${product.id}`}>
+                                <button className="px-4 py-2 md:px-6 md:py-3 bg-[#C8D8C0] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 text-sm md:text-base whitespace-nowrap">
+                                  View Deal
+                                </button>
+                              </Link>
                             </div>
                           </div>
                         </div>
@@ -891,23 +889,23 @@ useEffect(() => {
                 )}
 
                 {/* Legal Disclaimer - Search Page */}
-<div className="mt-12 pt-8 border-t border-gray-200">
-  <p className="text-xs text-gray-500 leading-relaxed text-center">
-    HybridHunting is an informational directory only. We do not sell, distribute, or manufacture 
-    any cannabis products. All transactions occur between the user and the licensed dispensary.
-  </p>
-  <p className="text-xs text-gray-500 leading-relaxed text-center mt-2">
-    Prices and availability are provided by third-party dispensaries and may change without notice.
-    Always verify pricing and age requirements directly with the dispensary.
-  </p>
-  <p className="text-xs text-gray-500 leading-relaxed text-center mt-2">
-    Must be 21 or older to view this site. Please consume responsibly.
-  </p>
-  <div className="flex justify-center gap-4 mt-3">
-    <Link href="/terms" className="text-xs text-gray-400 hover:underline">Terms of Service</Link>
-    <Link href="/privacy" className="text-xs text-gray-400 hover:underline">Privacy Policy</Link>
-  </div>
-</div>
+                <div className="mt-12 pt-8 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 leading-relaxed text-center">
+                    HybridHunting is an informational directory only. We do not sell, distribute, or manufacture 
+                    any cannabis products. All transactions occur between the user and the licensed dispensary.
+                  </p>
+                  <p className="text-xs text-gray-500 leading-relaxed text-center mt-2">
+                    Prices and availability are provided by third-party dispensaries and may change without notice.
+                    Always verify pricing and age requirements directly with the dispensary.
+                  </p>
+                  <p className="text-xs text-gray-500 leading-relaxed text-center mt-2">
+                    Must be 21 or older to view this site. Please consume responsibly.
+                  </p>
+                  <div className="flex justify-center gap-4 mt-3">
+                    <Link href="/terms" className="text-xs text-gray-400 hover:underline">Terms of Service</Link>
+                    <Link href="/privacy" className="text-xs text-gray-400 hover:underline">Privacy Policy</Link>
+                  </div>
+                </div>
               </>
             )}
           </div>
