@@ -201,7 +201,20 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Legal Disclaimer - Add this section */}
+            {/* Buy Me a Coffee Button - Product Page */}
+            <div className="mt-8 text-center">
+              <a
+                href="https://www.buymeacoffee.com/hybridhunting"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#FFDD00] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 transition text-sm md:text-base"
+              >
+                <span>☕</span>
+                Buy Me a Coffee
+              </a>
+            </div>
+
+            {/* Legal Disclaimer */}
             <div className="mt-8 pt-6 border-t border-gray-200">
               <p className="text-xs text-gray-400 leading-relaxed">
                 Prices and availability are provided by third-party dispensaries and may change without notice.

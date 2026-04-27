@@ -888,6 +888,19 @@ export default function SearchContent() {
                   </div>
                 )}
 
+                {/* Buy Me a Coffee Button - Search Page Footer */}
+                <div className="mt-8 text-center">
+                  <a
+                    href="https://www.buymeacoffee.com/hybridhunting"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#FFDD00] text-[#2A2A2A] font-bold rounded-lg hover:opacity-90 transition text-sm md:text-base"
+                  >
+                    <span>☕</span>
+                    Buy Me a Coffee
+                  </a>
+                </div>
+
                 {/* Legal Disclaimer - Search Page */}
                 <div className="mt-12 pt-8 border-t border-gray-200">
                   <p className="text-xs text-gray-500 leading-relaxed text-center">
