@@ -8,7 +8,7 @@ async function sendUnsubscribeEmail(email) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://hybrid-hunting.vercel.app'
   
   const emailBody = {
-    sender: { name: 'HybridHunting', email: 'hybridhunting@brevo.com' },
+    sender: { name: 'HybridHunting', email: 'angelpersonal3@gmail.com' },
     to: [{ email: email }],
     subject: 'You have been unsubscribed from HybridHunting',
     htmlContent: `

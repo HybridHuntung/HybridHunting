@@ -63,6 +63,8 @@ async function sendEmail(email, type) {
     subject: subject,
     htmlContent: htmlContent
   }
+
+  console.log('SUBSCRIBE - Sending email to:', email)
   
   const response = await fetch(BREVO_API_URL, {
     method: 'POST',
@@ -73,19 +75,22 @@ async function sendEmail(email, type) {
     },
     body: JSON.stringify(emailBody)
   })
+
+  const responseData = await response.json()
+  console.log('SUBSCRIBE - Response status:', response.status)
+  console.log('SUBSCRIBE - Response data:', responseData)
   
   if (!response.ok) {
-    const errorData = await response.json()
-    console.error('Brevo API error:', errorData)
-    throw new Error(`Failed to send email: ${response.status}`)
+    throw new Error(`Failed to send email: ${response.status} - ${JSON.stringify(responseData)}`)
   }
   
-  return await response.json()
+  return responseData
 }
 
 export async function POST(request) {
   try {
     const { email } = await request.json()
+    console.log('SUBSCRIBE POST - Received email:', email)
 
     if (!email || !email.includes('@')) {
       return NextResponse.json(
@@ -120,6 +125,8 @@ export async function POST(request) {
         .eq('email', email)
 
       if (updateError) throw updateError
+
+      console.log('REACTIVATION - About to send email to:', email)
 
       // Send reactivation email
       try {
