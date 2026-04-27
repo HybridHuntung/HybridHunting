@@ -744,7 +744,7 @@ export default function SearchContent() {
                     }}
                     className="w-full py-2.5 md:py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm md:text-base"
                   >
-                    Reset Filters
+                    Clear Filters
                   </button>
                 </div>
               </div>
