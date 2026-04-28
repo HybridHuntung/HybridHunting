@@ -1,5 +1,9 @@
 {
+  "/admin/page": "app/admin/page.js",
+  "/api/dispensaries-config/route": "app/api/dispensaries-config/route.js",
+  "/api/jardin/route": "app/api/jardin/route.js",
   "/api/subscribe/route": "app/api/subscribe/route.js",
-  "/api/unsubscribe/route": "app/api/unsubscribe/route.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/product/[id]/page": "app/product/[id]/page.js",
+  "/search-wrapper/page": "app/search-wrapper/page.js"
 }
